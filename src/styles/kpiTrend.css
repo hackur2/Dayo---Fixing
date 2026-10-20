@@ -1,0 +1,27 @@
+/* Small trend line in existing four-card grid, with no card resizing. */
+.dashboard-kpi-card p.metric-trend,
+.orders-summary-card p.metric-trend,
+.sales-graph-summary-card p.metric-trend {
+  margin: 8px 0 0;
+  font-size: 11px;
+  line-height: 1.35;
+  font-weight: 800;
+  letter-spacing: 0;
+  text-transform: none;
+  white-space: normal;
+}
+.dashboard-kpi-card p.metric-trend--up,
+.orders-summary-card p.metric-trend--up,
+.sales-graph-summary-card p.metric-trend--up,
+.dashboard-kpi-card p.metric-trend--new,
+.orders-summary-card p.metric-trend--new,
+.sales-graph-summary-card p.metric-trend--new { color: #16804d; }
+.dashboard-kpi-card p.metric-trend--down,
+.orders-summary-card p.metric-trend--down,
+.sales-graph-summary-card p.metric-trend--down { color: #b91c1c; }
+.dashboard-kpi-card p.metric-trend--unavailable,
+.orders-summary-card p.metric-trend--unavailable,
+.sales-graph-summary-card p.metric-trend--unavailable { color: #737373; }
+.dashboard-kpi-card.featured p.metric-trend,
+.orders-summary-card.featured p.metric-trend,
+.sales-graph-summary-card.featured p.metric-trend { color: #ffffff; }

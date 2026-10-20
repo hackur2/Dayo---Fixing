@@ -1,0 +1,26 @@
+.menu-image-wrapper {
+  position: relative;
+  overflow: hidden;
+  background: var(--color-soft-bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.menu-image-wrapper img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.menu-image-fallback {
+  width: 100%;
+  height: 100%;
+  background: var(--color-accent);
+  color: var(--color-white);
+  font-size: 28px;
+  font-weight: 900;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}

@@ -1,0 +1,305 @@
+.bag-page {
+  min-height: 100vh;
+  width: min(100%, var(--page-max-width));
+  margin: 0 auto;
+  padding: 20px 16px 132px;
+  background: var(--color-page-bg);
+  color: var(--color-text);
+}
+
+.bag-back-link {
+  display: inline-flex;
+  min-height: 44px;
+  align-items: center;
+  gap: 9px;
+  padding: 0 15px;
+  border: 1px solid rgba(165, 42, 42, 0.16);
+  border-radius: var(--radius-pill);
+  background: var(--color-white);
+  color: var(--color-primary);
+  box-shadow: 0 4px 12px rgba(47, 36, 28, 0.12);
+  font-size: 15px;
+  font-weight: 900;
+  text-decoration: none;
+  transition: background-color 0.18s ease, transform 0.18s ease;
+}
+
+.bag-back-link span:first-child {
+  font-size: 20px;
+  line-height: 1;
+}
+
+.bag-back-link:hover {
+  background: var(--color-soft-bg);
+  transform: translateY(-1px);
+}
+
+.bag-back-link:focus-visible {
+  outline: 3px solid #54c8ff;
+  outline-offset: 3px;
+}
+
+.bag-header {
+  margin: 18px 0 24px;
+}
+
+.bag-header h1 {
+  margin: 0;
+  color: var(--color-text);
+  font-size: 28px;
+  line-height: 1.1;
+  font-weight: 900;
+}
+
+.bag-header p {
+  margin: 10px 0 0;
+  color: var(--color-muted);
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.bag-empty-card {
+  min-height: 150px;
+  padding: 28px 18px;
+  border: 2px dotted var(--color-border);
+  border-radius: 22px;
+  background: rgba(255, 255, 255, 0.45);
+  text-align: center;
+}
+
+.bag-empty-card h2 {
+  margin: 0 0 12px;
+  color: #050505;
+  font-size: 19px;
+  font-weight: 900;
+}
+
+.bag-empty-card p {
+  margin: 0 0 22px;
+  color: var(--color-muted);
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.bag-browse-button {
+  min-height: 44px;
+  padding: 12px 20px;
+  border-radius: var(--radius-pill);
+  background: var(--color-primary);
+  color: var(--color-white);
+  font-size: 14px;
+  font-weight: 900;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.bag-browse-button:hover {
+  background: var(--color-primary-dark);
+}
+
+.bag-items-list {
+  display: grid;
+  gap: 12px;
+}
+
+.bag-item-card {
+  padding: 14px;
+  border-radius: var(--radius-xl);
+  background: var(--color-white);
+  box-shadow: var(--shadow-card);
+}
+
+.bag-item-main {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.bag-item-main h2 {
+  margin: 0;
+  color: var(--color-text);
+  font-size: 16px;
+  font-weight: 900;
+}
+
+.bag-item-main p {
+  margin: 4px 0 0;
+  color: var(--color-muted);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.bag-item-main span {
+  display: block;
+  margin-top: 6px;
+  color: var(--color-primary);
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.bag-item-main strong {
+  color: var(--color-text);
+  font-size: 15px;
+  font-weight: 900;
+  white-space: nowrap;
+}
+
+.bag-item-actions {
+  margin-top: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.bag-quantity-controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.bag-quantity-controls button {
+  width: 34px;
+  height: 34px;
+  border: none;
+  border-radius: var(--radius-pill);
+  background: var(--color-primary);
+  color: var(--color-white);
+  font-size: 18px;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.bag-quantity-controls button:hover {
+  background: var(--color-primary-dark);
+}
+
+.bag-quantity-controls span {
+  min-width: 22px;
+  text-align: center;
+  color: var(--color-text);
+  font-size: 15px;
+  font-weight: 900;
+}
+
+.bag-remove-button,
+.bag-clear-button {
+  border: none;
+  background: transparent;
+  color: #b91c1c;
+  font-size: 13px;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.bag-clear-button {
+  justify-self: start;
+  margin-top: 4px;
+}
+
+.bag-bottom-summary {
+  position: fixed;
+  left: 50%;
+  bottom: 0;
+  z-index: 60;
+  width: min(100%, var(--page-max-width));
+  padding: 16px;
+  background: var(--color-white);
+  box-shadow: 0 -6px 18px rgba(47, 36, 28, 0.08);
+  transform: translateX(-50%);
+}
+
+.bag-summary-row {
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.bag-summary-row span {
+  color: #050505;
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.bag-summary-row strong {
+  color: #050505;
+  font-size: 14px;
+  font-weight: 900;
+}
+
+.bag-checkout-button {
+  width: min(190px, 100%);
+  min-height: 48px;
+  margin-top: 8px;
+  border-radius: var(--radius-pill);
+  background: var(--color-primary);
+  color: var(--color-white);
+  font-size: 14px;
+  font-weight: 900;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.bag-checkout-button:hover {
+  background: var(--color-primary-dark);
+}
+
+.bag-checkout-button.disabled {
+  background: #d98c93;
+  cursor: not-allowed;
+  opacity: 0.9;
+}
+
+@media (min-width: 768px) {
+  .bag-page {
+    padding: 28px 28px 142px;
+  }
+
+  .bag-header h1 {
+    font-size: 34px;
+  }
+
+  .bag-items-list {
+    gap: 16px;
+  }
+
+  .bag-bottom-summary {
+    padding: 18px 28px;
+  }
+}
+/* PAGE REVISION: center quantity symbols inside circular controls. */
+.bag-quantity-controls button {
+  padding: 0;
+  display: grid;
+  place-items: center;
+  line-height: 1;
+}
+
+/* PAGE REVISION 3: compact Bag page header spacing */
+.bag-page {
+  padding-top: 12px;
+}
+
+.bag-header {
+  margin: 10px 0 14px;
+}
+
+.bag-header p {
+  margin-top: 6px;
+}
+
+@media (max-width: 560px) {
+  .bag-page {
+    padding-top: 10px;
+  }
+
+  .bag-header {
+    margin: 8px 0 10px;
+  }
+}

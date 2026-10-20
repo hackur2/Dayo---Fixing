@@ -1,0 +1,525 @@
+/* =========================================================
+   DaYo — Shared Admin / Super Admin Layout
+   Shared structure and responsive rules belong here.
+   Individual pages keep their own component-specific CSS.
+   ========================================================= */
+
+/* 1. Management layout */
+.admin-shell {
+  display: grid;
+  grid-template-columns: 270px minmax(0, 1fr);
+  min-height: 100vh;
+  background: var(--color-page-bg);
+  color: var(--color-text);
+}
+
+.restock-alert-stack {
+  position: fixed;
+  z-index: 1200;
+  top: 16px;
+  right: 16px;
+  display: grid;
+  gap: 10px;
+  width: min(420px, calc(100vw - 32px));
+}
+
+.restock-alert {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 16px;
+  border: 1px solid #f0c36d;
+  border-left: 5px solid #d88900;
+  border-radius: 12px;
+  background: #fff9e9;
+  box-shadow: 0 8px 24px rgba(30, 25, 15, 0.16);
+}
+
+.restock-alert strong { color: #583800; }
+.restock-alert p { margin: 6px 0; color: #654e27; font-size: 13px; }
+.restock-alert a { color: #744900; font-size: 13px; font-weight: 700; }
+.restock-alert button { align-self: flex-start; border: 0; background: transparent; color: #583800; cursor: pointer; font-size: 20px; line-height: 1; }
+
+.admin-shell.sidebar-closed {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.admin-shell.sidebar-closed .admin-sidebar {
+  display: none;
+}
+
+.admin-main-content {
+  min-width: 0;
+  overflow-x: hidden;
+  padding: 20px 36px 32px;
+}
+
+.admin-page {
+  max-width: 1180px;
+  margin: 0 auto;
+}
+
+.admin-page h1 {
+  margin: 0 0 6px;
+  color: var(--color-text);
+  font-size: 34px;
+  line-height: 1.1;
+  font-weight: 900;
+}
+
+.admin-page p {
+  margin: 0;
+  color: var(--color-muted);
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1.5;
+}
+
+.admin-loading-text {
+  margin: 0 0 18px;
+  padding: 14px 16px;
+  border-radius: var(--radius-lg);
+  background: var(--color-white);
+  color: var(--color-muted);
+  font-size: 14px;
+  font-weight: 800;
+}
+
+/* The page title and action buttons share ONE row on desktop.
+   Keeping this rule here means lazy-loaded pages do not depend
+   on the Kitchen Display System stylesheet. */
+.admin-page .admin-page-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  flex-wrap: nowrap;
+  gap: 14px;
+  margin-bottom: 14px;
+}
+
+.admin-page-heading > :first-child {
+  min-width: 0;
+}
+
+.admin-page-heading > :not(:first-child) {
+  flex: 0 0 auto;
+  margin-left: auto;
+}
+
+/* Shared page eyebrow text also needs to load independently of KDS. */
+.admin-page .admin-eyebrow {
+  margin: 0 0 4px;
+  color: var(--color-primary);
+  font-size: 13px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+/* Prevent tables and their containers from widening the whole page. */
+.admin-main-content table {
+  width: 100%;
+}
+
+.admin-main-content [class*="table"],
+.admin-main-content [class*="Table"] {
+  min-width: 0;
+}
+
+/* 2. Sidebar and brand */
+.admin-sidebar {
+  position: sticky;
+  top: 0;
+  align-self: start;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100vh;
+  padding: 28px 20px;
+  border-right: 1px solid var(--color-border-light);
+  background: var(--color-white);
+}
+
+.admin-sidebar-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.admin-sidebar-header h1 {
+  margin: 0;
+  color: var(--color-primary);
+  font-size: 30px;
+  font-weight: 900;
+}
+
+.admin-sidebar-header p {
+  margin: 6px 0 0;
+  color: var(--color-muted);
+  font-size: 13px;
+  font-weight: 800;
+}
+
+/* 3. Sidebar navigation */
+.admin-sidebar-nav {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  justify-content: flex-start;
+  gap: 12px;
+  min-height: 0;
+  padding: 2px 0 18px;
+  overflow-y: auto;
+}
+
+.admin-nav-link {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  width: 100%;
+  min-height: 48px;
+  padding: 14px;
+  border-radius: var(--radius-lg);
+  color: var(--color-text);
+  font-size: 14px;
+  font-weight: 900;
+  text-decoration: none;
+}
+
+.admin-nav-link:hover {
+  background: rgba(165, 42, 42, 0.08);
+  color: var(--color-primary);
+}
+
+.admin-nav-link.active,
+.admin-nav-link.active:hover {
+  background: var(--color-primary);
+  color: var(--color-white);
+}
+
+/* 4. Sidebar footer: keep customer menu / logout at the bottom. */
+.admin-sidebar-footer {
+  display: grid;
+  gap: 12px;
+  margin-top: auto;
+  padding: 18px;
+  border-top: 1px solid var(--color-border);
+}
+
+.admin-sidebar-footer-link {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  min-height: 44px;
+  padding: 12px 14px;
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--color-primary);
+  font-size: 14px;
+  font-weight: 900;
+  text-decoration: none;
+}
+
+.admin-sidebar-footer-link:hover {
+  background: rgba(165, 42, 42, 0.08);
+}
+
+.admin-sidebar-logout-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 46px;
+  padding: 12px 14px;
+  border: 0;
+  border-radius: var(--radius-md);
+  background: var(--color-primary);
+  color: var(--color-white);
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 900;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.admin-sidebar-logout-button:hover {
+  background: var(--color-primary-dark);
+  text-decoration: none;
+}
+
+/* 5. Collapsible sidebar controls */
+.admin-sidebar-close-button {
+  display: grid;
+  flex: 0 0 auto;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: 1px solid var(--color-border-light);
+  border-radius: 50%;
+  background: var(--color-white);
+  color: var(--color-text);
+  cursor: pointer;
+}
+
+.admin-sidebar-close-button:hover {
+  background: var(--color-soft-bg);
+}
+
+/* A CSS-drawn X stays centered even when font glyphs do not. */
+.admin-sidebar-close-icon {
+  position: relative;
+  display: block;
+  width: 14px;
+  height: 14px;
+}
+
+.admin-sidebar-close-icon::before,
+.admin-sidebar-close-icon::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 15px;
+  height: 2px;
+  border-radius: 999px;
+  background: currentColor;
+  transform-origin: center;
+}
+
+.admin-sidebar-close-icon::before {
+  transform: translate(-50%, -50%) rotate(45deg);
+}
+
+.admin-sidebar-close-icon::after {
+  transform: translate(-50%, -50%) rotate(-45deg);
+}
+
+.admin-sidebar-open-button {
+  min-height: 42px;
+  padding: 10px 14px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-white);
+  color: var(--color-primary);
+  box-shadow: var(--shadow-card);
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.admin-sidebar-open-button:hover {
+  background: var(--color-soft-bg);
+}
+
+.admin-sidebar-close-button:focus-visible,
+.admin-sidebar-open-button:focus-visible {
+  outline: 3px solid #54c8ff;
+  outline-offset: 2px;
+}
+
+/* 6. Collapsed header: title and actions occupy ONE ROW.
+   Buttons are moved here by AdminPageActions (React portal).
+   Do not absolutely position them or leave a second heading row. */
+.admin-collapsed-page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  max-width: 1180px;
+  min-height: 44px;
+  margin: 0 auto 12px;
+}
+
+.admin-collapsed-page-title {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  min-width: 0;
+}
+
+.admin-collapsed-page-title .admin-sidebar-open-button {
+  flex: 0 0 auto;
+}
+
+.admin-collapsed-page-title h1 {
+  min-width: 0;
+  margin: 0;
+  color: var(--color-text);
+  font-size: 28px;
+  line-height: 1.15;
+  font-weight: 900;
+}
+
+.admin-collapsed-page-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex: 0 1 auto;
+  margin-left: auto;
+  min-width: 0;
+}
+
+/* The page heading is already represented in the collapsed header.
+   Suppress its original row entirely to eliminate dead space. */
+.admin-shell.sidebar-closed .admin-page .admin-page-heading {
+  display: none;
+}
+
+/* 6. Tablet and smaller desktop */
+@media (max-width: 1100px) {
+  .admin-shell {
+    grid-template-columns: 220px minmax(0, 1fr);
+  }
+
+  .admin-main-content {
+    padding: 16px 20px 22px;
+  }
+}
+
+/* 7. Mobile and narrow tablet */
+@media (max-width: 900px) {
+  .admin-shell {
+    display: block;
+  }
+
+  .admin-sidebar {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    width: 100%;
+    height: auto;
+    min-height: 0;
+    padding: 16px;
+    border-right: 0;
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .admin-sidebar-header {
+    margin-bottom: 8px;
+  }
+
+
+  .admin-sidebar-nav {
+    flex: 0 0 auto;
+    flex-direction: row;
+    gap: 10px;
+    padding: 0 0 12px;
+    overflow-x: auto;
+    overflow-y: hidden;
+  }
+
+  .admin-nav-link {
+    width: auto;
+    min-width: max-content;
+    min-height: 42px;
+    padding: 11px 14px;
+    white-space: nowrap;
+  }
+
+  /* Keep View Customer Menu and Logout together at the bottom. */
+  .admin-sidebar-footer {
+    position: fixed;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 30;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+    margin: 0;
+    padding: 10px 16px calc(10px + env(safe-area-inset-bottom, 0px));
+    border-top: 1px solid var(--color-border);
+    background: var(--color-white);
+    box-shadow: 0 -6px 18px rgba(47, 36, 28, 0.1);
+  }
+
+  .admin-sidebar-footer-link,
+  .admin-sidebar-logout-button {
+    min-height: 42px;
+    padding: 10px 12px;
+    justify-content: center;
+    text-align: center;
+  }
+
+  .admin-main-content {
+    padding: 10px 16px 88px;
+  }
+
+  .admin-page .admin-page-heading {
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+
+  .admin-sidebar-close-button {
+    width: 34px;
+    height: 34px;
+  }
+
+  .admin-collapsed-page-header {
+    gap: 12px;
+    margin-bottom: 8px;
+  }
+
+  .admin-collapsed-page-title {
+    gap: 16px;
+  }
+
+  .admin-collapsed-page-title h1 {
+    font-size: 23px;
+  }
+}
+
+/* 9. Small screens: wrap header buttons when the width requires it. */
+@media (max-width: 650px) {
+  .admin-page .admin-page-heading {
+    flex-wrap: wrap;
+  }
+
+  .admin-page-heading > :not(:first-child) {
+    width: 100%;
+    margin-left: 0;
+  }
+
+  .admin-collapsed-page-header {
+    flex-wrap: wrap;
+    row-gap: 8px;
+  }
+
+  .admin-collapsed-page-actions:not(:empty) {
+    flex: 1 1 100%;
+    justify-content: flex-end;
+    margin-left: 0;
+  }
+}
+
+/* 8. Very small screens */
+@media (max-width: 560px) {
+  .admin-sidebar-footer {
+    gap: 8px;
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+
+  .admin-sidebar-footer-link,
+  .admin-sidebar-logout-button {
+    min-width: 0;
+    padding: 10px 8px;
+    font-size: 12px;
+  }
+
+  .admin-main-content {
+    padding: 8px 12px 86px;
+  }
+
+  .admin-collapsed-page-title {
+    gap: 12px;
+  }
+
+  .admin-collapsed-page-title h1 {
+    font-size: 20px;
+  }
+}

@@ -1,0 +1,299 @@
+.admin-page-heading {
+  margin-bottom: 28px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.admin-eyebrow {
+  margin: 0 0 8px;
+  color: var(--color-primary);
+  font-size: 13px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.kds-summary-grid {
+  margin-bottom: 26px;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.kds-summary-grid article {
+  min-height: 110px;
+  padding: 20px;
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-xl);
+  background: var(--color-white);
+  box-shadow: var(--shadow-card);
+}
+
+.kds-summary-grid span {
+  color: var(--color-muted);
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.kds-summary-grid strong {
+  display: block;
+  margin-top: 10px;
+  color: var(--color-text);
+  font-size: 34px;
+  font-weight: 900;
+}
+
+.kds-board {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(280px, 1fr));
+  gap: 18px;
+  align-items: start;
+}
+
+.kds-order-card {
+  padding: 18px;
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-xl);
+  background: var(--color-white);
+  box-shadow: var(--shadow-card);
+}
+
+.kds-order-header {
+  margin-bottom: 14px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.kds-order-header h2 {
+  margin: 0;
+  color: var(--color-text);
+  font-size: 22px;
+  font-weight: 900;
+}
+
+.kds-order-header p {
+  margin: 4px 0 0;
+  color: var(--color-muted);
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.kds-status-badge {
+  padding: 7px 12px;
+  border-radius: var(--radius-pill);
+  font-size: 12px;
+  font-weight: 900;
+  white-space: nowrap;
+}
+
+.kds-status-badge.pending {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.kds-status-badge.preparing {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+
+.kds-status-badge.ready {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.kds-order-meta {
+  margin-bottom: 18px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.kds-order-meta span {
+  padding: 7px 10px;
+  border-radius: var(--radius-pill);
+  background: var(--color-soft-bg);
+  color: var(--color-muted);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.kds-cash-payment {
+  margin: 0 0 16px;
+  padding: 12px;
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-lg);
+  background: var(--color-soft-bg);
+}
+
+.kds-cash-payment label {
+  display: block;
+  margin-bottom: 7px;
+  color: var(--color-text);
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.kds-cash-payment-row {
+  min-height: 42px;
+  padding: 0 10px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-white);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.kds-cash-payment-row span {
+  color: var(--color-muted);
+  font-weight: 800;
+}
+
+.kds-cash-payment-row input {
+  width: 100%;
+  min-width: 0;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: var(--color-text);
+  font: inherit;
+}
+
+.kds-cash-change,
+.kds-cash-balance {
+  margin: 8px 0 0;
+  font-size: 14px;
+  font-weight: 900;
+}
+
+.kds-cash-change {
+  color: var(--color-success, #166534);
+}
+
+.kds-cash-balance {
+  color: var(--color-primary);
+}
+
+.kds-order-countdown {
+  margin: -8px 0 16px;
+  color: var(--color-primary);
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.kds-items-section {
+  margin-bottom: 16px;
+}
+
+.kds-items-section h3 {
+  margin: 0 0 10px;
+  color: var(--color-text);
+  font-size: 15px;
+  font-weight: 900;
+}
+
+.kds-items-list {
+  display: grid;
+  gap: 10px;
+}
+
+.kds-item-row {
+  padding: 12px;
+  border-radius: var(--radius-md);
+  background: var(--color-soft-bg);
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.kds-item-row strong {
+  color: var(--color-text);
+  font-size: 14px;
+  font-weight: 900;
+}
+
+.kds-item-row p {
+  margin: 4px 0 0;
+  color: var(--color-muted);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.kds-item-row span {
+  color: var(--color-primary);
+  font-size: 13px;
+  font-weight: 900;
+  white-space: nowrap;
+}
+
+.kds-notes-box {
+  margin-bottom: 16px;
+  padding: 12px;
+  border-radius: var(--radius-md);
+  background: var(--color-warning-bg);
+}
+
+.kds-notes-box span {
+  color: var(--color-warning-text);
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.kds-notes-box p {
+  margin: 4px 0 0;
+  color: var(--color-warning-text);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.kds-order-actions {
+  display: flex;
+  gap: 10px;
+  align-items: stretch;
+}
+
+.kds-order-actions .primary-button,
+.kds-order-actions .secondary-button {
+  flex: 1;
+  min-height: 46px;
+}
+
+.admin-empty-state {
+  padding: 40px;
+  border: 1px dashed var(--color-border);
+  border-radius: var(--radius-xl);
+  background: var(--color-white);
+  text-align: center;
+}
+
+.admin-empty-state h2 {
+  margin: 0 0 8px;
+  color: var(--color-text);
+  font-size: 24px;
+  font-weight: 900;
+}
+
+.admin-empty-state p {
+  margin: 0;
+  color: var(--color-muted);
+}
+/* PAGE REVISION 3: one compact heading-to-content gap for all management pages */
+.admin-page-heading {
+  margin-bottom: 14px;
+  gap: 14px;
+}
+
+.admin-eyebrow {
+  margin-bottom: 4px;
+}
+
+@media (max-width: 900px) {
+  .admin-page-heading {
+    margin-bottom: 10px;
+    gap: 10px;
+  }
+}

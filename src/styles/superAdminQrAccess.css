@@ -1,0 +1,108 @@
+.super-admin-qr-layout {
+  display: grid;
+  grid-template-columns: minmax(260px, 0.85fr) minmax(320px, 1.15fr);
+  gap: 20px;
+  align-items: start;
+}
+
+.super-admin-qr-controls,
+.super-admin-qr-preview {
+  padding: 24px;
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-xl);
+  background: var(--color-white);
+  box-shadow: var(--shadow-card);
+}
+
+.super-admin-qr-controls label {
+  display: block;
+  margin-bottom: 8px;
+  color: var(--color-text);
+  font-size: 14px;
+  font-weight: 900;
+}
+
+.super-admin-qr-controls input {
+  width: 100%;
+  min-height: 46px;
+  margin-bottom: 14px;
+  padding: 10px 12px;
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-md);
+  color: var(--color-text);
+  font: inherit;
+}
+
+.super-admin-qr-controls button,
+.super-admin-qr-actions button {
+  min-height: 42px;
+  padding: 10px 16px;
+  border: 0;
+  border-radius: var(--radius-pill);
+  background: var(--color-primary);
+  color: var(--color-white);
+  font-size: 13px;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.super-admin-qr-controls button:disabled {
+  cursor: wait;
+  opacity: 0.65;
+}
+
+.super-admin-qr-note,
+.super-admin-qr-preview > p {
+  color: var(--color-muted);
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.super-admin-qr-status,
+.super-admin-qr-error {
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.super-admin-qr-status {
+  color: #167342;
+}
+
+.super-admin-qr-error {
+  color: var(--color-danger, #b42318);
+}
+
+.super-admin-qr-preview {
+  display: flex;
+  min-height: 360px;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  text-align: center;
+}
+
+.super-admin-qr-preview strong {
+  color: var(--color-text);
+}
+
+.super-admin-qr-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+}
+
+.super-admin-qr-url {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-md);
+  color: var(--color-muted);
+  font-size: 12px;
+}
+
+@media (max-width: 800px) {
+  .super-admin-qr-layout {
+    grid-template-columns: 1fr;
+  }
+}

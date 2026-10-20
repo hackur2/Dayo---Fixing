@@ -1,0 +1,125 @@
+.login-page {
+  min-height: 100vh;
+  padding: 24px;
+  background:
+    linear-gradient(rgba(47, 36, 28, 0.48), rgba(47, 36, 28, 0.62)),
+    url("/images/login/login-bg.jpg");
+  background-color: var(--color-page-bg);
+  background-size: cover;
+  background-position: center;
+  display: grid;
+  place-items: center;
+}
+
+.login-card {
+  width: min(100%, 460px);
+  padding: 28px;
+  border: 1px solid rgba(255, 255, 255, 0.38);
+  border-radius: 28px;
+  background: rgba(255, 255, 255, 0.94);
+  box-shadow: var(--shadow-floating);
+  backdrop-filter: blur(10px);
+}
+
+.login-brand {
+  margin-bottom: 24px;
+  text-align: center;
+}
+
+.login-brand span {
+  display: inline-grid;
+  place-items: center;
+  width: 72px;
+  height: 72px;
+  margin-bottom: 14px;
+  border-radius: 24px;
+  background: var(--color-primary);
+  color: var(--color-white);
+  font-size: 22px;
+  font-weight: 900;
+}
+
+.login-brand h1 {
+  margin: 0;
+  color: var(--color-text);
+  font-size: 30px;
+  font-weight: 900;
+}
+
+.login-form {
+  display: grid;
+  gap: 14px;
+}
+
+.login-field {
+  display: grid;
+  gap: 7px;
+}
+
+.login-field span {
+  color: var(--color-text);
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.login-field input {
+  width: 100%;
+  min-height: 48px;
+  padding: 12px 14px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-soft-bg);
+  color: var(--color-text);
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 800;
+  outline: none;
+}
+
+.login-field input:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(165, 42, 42, 0.12);
+}
+
+.login-field input:disabled {
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.login-submit-button {
+  width: 100%;
+  min-height: 50px;
+  margin-top: 4px;
+  border: none;
+  border-radius: var(--radius-lg);
+  background: var(--color-primary);
+  color: var(--color-white);
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 900;
+}
+
+.login-submit-button:hover:not(:disabled) {
+  background: var(--color-primary-dark);
+}
+
+.login-submit-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+@media (max-width: 520px) {
+  .login-page {
+    padding: 16px;
+  }
+
+  .login-card {
+    padding: 22px;
+    border-radius: 24px;
+  }
+
+  .login-brand h1 {
+    font-size: 26px;
+  }
+}

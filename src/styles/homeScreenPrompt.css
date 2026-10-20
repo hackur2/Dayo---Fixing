@@ -1,0 +1,106 @@
+.home-screen-prompt-backdrop {
+  position: fixed;
+  z-index: 1200;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: rgba(24, 18, 16, 0.56);
+}
+
+.home-screen-prompt {
+  position: relative;
+  width: min(100%, 390px);
+  padding: 28px 24px 20px;
+  border-radius: 24px;
+  background: var(--color-white, #fff);
+  color: var(--color-text, #2d211c);
+  box-shadow: 0 18px 60px rgba(0, 0, 0, 0.24);
+  text-align: center;
+}
+
+.home-screen-prompt > img {
+  display: block;
+  margin: 0 auto 12px;
+  border-radius: 14px;
+}
+
+.home-screen-prompt-eyebrow {
+  margin: 0 0 6px;
+  color: var(--color-primary, #a52929);
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.home-screen-prompt h2 {
+  margin: 0;
+  font-size: 22px;
+  line-height: 1.2;
+}
+
+.home-screen-prompt-description,
+.home-screen-prompt-steps p {
+  color: var(--color-muted, #756a65);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.home-screen-prompt-steps {
+  margin: 16px 0;
+  padding: 14px;
+  border-radius: 14px;
+  background: var(--color-soft-bg, #f6f1eb);
+  text-align: left;
+}
+
+.home-screen-prompt-steps strong {
+  font-size: 14px;
+}
+
+.home-screen-prompt-steps p {
+  margin: 6px 0 0;
+}
+
+.home-screen-prompt-steps .home-screen-prompt-note {
+  margin-top: 10px;
+  font-size: 12px;
+}
+
+.home-screen-prompt-install,
+.home-screen-prompt-later {
+  width: 100%;
+  min-height: 46px;
+  border: 0;
+  border-radius: 999px;
+  font-size: 14px;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.home-screen-prompt-install {
+  margin-top: 10px;
+  background: var(--color-primary, #a52929);
+  color: #fff;
+}
+
+.home-screen-prompt-later {
+  margin-top: 8px;
+  background: transparent;
+  color: var(--color-muted, #756a65);
+}
+
+.home-screen-prompt-close {
+  position: absolute;
+  top: 10px;
+  right: 12px;
+  width: 34px;
+  height: 34px;
+  border: 0;
+  border-radius: 50%;
+  background: var(--color-soft-bg, #f6f1eb);
+  color: var(--color-text, #2d211c);
+  font-size: 24px;
+  cursor: pointer;
+}

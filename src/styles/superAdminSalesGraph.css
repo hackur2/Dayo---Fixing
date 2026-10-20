@@ -1,0 +1,260 @@
+.sales-graph-message {
+  margin-bottom: 18px;
+  padding: 14px 16px;
+  border-radius: var(--radius-lg);
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.sales-graph-message.warning {
+  background: var(--color-warning-bg);
+  color: var(--color-warning-text);
+}
+
+/* DATE FILTER */
+
+.sales-graph-filter-card {
+  margin-bottom: 22px;
+  padding: 18px;
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-xl);
+  background: var(--color-white);
+  box-shadow: var(--shadow-card);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+}
+
+.sales-graph-filter-heading {
+  display: grid;
+  gap: 4px;
+}
+
+.sales-graph-filter-heading span {
+  color: var(--color-muted);
+  font-size: 12px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.sales-graph-filter-heading strong {
+  color: var(--color-text);
+  font-size: 18px;
+  font-weight: 900;
+}
+
+.sales-graph-date-fields {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.sales-graph-date-field {
+  min-width: 190px;
+  padding: 10px 12px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-soft-bg);
+  display: grid;
+  gap: 6px;
+}
+
+.sales-graph-date-field span {
+  color: var(--color-muted);
+  font-size: 11px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.sales-graph-date-field input {
+  width: 100%;
+  border: none;
+  background: transparent;
+  color: var(--color-text);
+  font-size: 15px;
+  font-weight: 900;
+  font-family: inherit;
+  outline: none;
+}
+
+.sales-graph-date-field:focus-within {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(165, 42, 42, 0.12);
+}
+
+.sales-graph-date-arrow {
+  width: 38px;
+  height: 38px;
+  border-radius: var(--radius-pill);
+  color: var(--color-primary);
+  display: grid;
+  place-items: center;
+  font-size: 18px;
+  font-weight: 900;
+}
+
+/* SUMMARY CARDS */
+
+.sales-graph-summary-grid {
+  margin-bottom: 24px;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.sales-graph-summary-card {
+  min-height: 132px;
+  padding: 20px;
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-xl);
+  background: var(--color-white);
+  box-shadow: var(--shadow-card);
+}
+
+.sales-graph-summary-card.featured {
+  background: var(--color-primary);
+}
+
+.sales-graph-summary-card.warning {
+  background: var(--color-warning-bg);
+}
+
+.sales-graph-summary-card span {
+  display: block;
+  color: var(--color-muted);
+  font-size: 12px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.sales-graph-summary-card strong {
+  display: block;
+  margin-top: 12px;
+  color: var(--color-text);
+  font-size: 30px;
+  line-height: 1.1;
+  font-weight: 900;
+}
+
+.sales-graph-summary-card p {
+  margin: 8px 0 0;
+  color: var(--color-muted);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.sales-graph-summary-card.featured span,
+.sales-graph-summary-card.featured p {
+  color: rgba(255, 255, 255, 0.84);
+}
+
+.sales-graph-summary-card.featured strong {
+  color: var(--color-white);
+}
+
+.sales-graph-summary-card.warning span,
+.sales-graph-summary-card.warning strong,
+.sales-graph-summary-card.warning p {
+  color: var(--color-warning-text);
+}
+
+/* GRAPH CARD */
+
+.sales-graph-card {
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-xl);
+  background: var(--color-white);
+  box-shadow: var(--shadow-card);
+  overflow: hidden;
+}
+
+.sales-graph-card-header {
+  padding: 20px;
+  border-bottom: 1px solid var(--color-border-light);
+}
+
+.sales-graph-card-header h2 {
+  margin: 0;
+  color: var(--color-text);
+  font-size: 22px;
+  font-weight: 900;
+}
+
+.sales-graph-card-header p {
+  margin: 6px 0 0;
+  color: var(--color-muted);
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.sales-graph-chart-wrapper {
+  height: 430px;
+  padding: 24px 24px 14px;
+}
+
+.sales-graph-tooltip {
+  padding: 10px 12px;
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-md);
+  background: var(--color-white);
+  box-shadow: var(--shadow-card);
+}
+
+.sales-graph-tooltip strong {
+  display: block;
+  margin-bottom: 6px;
+  color: var(--color-text);
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.sales-graph-tooltip p {
+  margin: 3px 0;
+  color: var(--color-muted);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+/* RESPONSIVE */
+
+@media (max-width: 1100px) {
+  .sales-graph-summary-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 900px) {
+  .sales-graph-filter-card {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .sales-graph-date-fields {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .sales-graph-date-field {
+    min-width: 0;
+  }
+
+  .sales-graph-date-arrow {
+    align-self: center;
+    transform: rotate(90deg);
+  }
+
+  .sales-graph-chart-wrapper {
+    height: 360px;
+    padding: 18px 12px 12px;
+  }
+}
+
+@media (max-width: 700px) {
+  .sales-graph-summary-grid {
+    grid-template-columns: 1fr;
+  }
+}

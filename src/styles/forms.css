@@ -1,0 +1,4 @@
+.input-error {
+  border-color: var(--color-primary) !important;
+  background: #fff7f7;
+}

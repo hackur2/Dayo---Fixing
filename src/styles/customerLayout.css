@@ -1,0 +1,62 @@
+.customer-page {
+  min-height: 100vh;
+  max-width: var(--page-max-width);
+  margin: 0 auto;
+  padding: 24px;
+  background: var(--color-page-bg);
+}
+
+.customer-page-header {
+  margin-bottom: 24px;
+}
+
+.customer-back-link {
+  display: inline-block;
+  margin-bottom: 18px;
+  color: var(--color-primary);
+  font-size: 14px;
+  font-weight: 800;
+  text-decoration: none;
+}
+
+.customer-page-header h1 {
+  margin: 0;
+  font-size: 30px;
+  font-weight: 900;
+}
+
+.customer-page-header p {
+  margin: 8px 0 0;
+  color: var(--color-muted);
+  line-height: 1.5;
+}
+/* PAGE REVISION 3: compact customer page headers and top spacing */
+.customer-page {
+  padding-top: 14px;
+}
+
+.customer-page-header {
+  margin-bottom: 14px;
+}
+
+.customer-back-link {
+  margin-bottom: 10px;
+}
+
+.customer-page-header p {
+  margin-top: 4px;
+}
+
+@media (max-width: 560px) {
+  .customer-page {
+    padding-top: 10px;
+  }
+
+  .customer-page-header {
+    margin-bottom: 10px;
+  }
+
+  .customer-back-link {
+    margin-bottom: 8px;
+  }
+}

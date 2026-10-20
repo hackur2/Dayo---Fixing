@@ -1,0 +1,39 @@
+/* Revision 13: small sort arrows inline with the table headers. */
+.dayo-sortable-heading {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  white-space: nowrap;
+}
+
+.dayo-column-sort-button {
+  display: inline-grid;
+  place-items: center;
+  width: 27px;
+  min-width: 27px;
+  height: 29px;
+  min-height: 29px;
+  margin: 0;
+  padding: 0;
+  border: none;
+  border-radius: 6px;
+  box-shadow: none;
+  background: transparent;
+  color: var(--color-muted, #777);
+  cursor: pointer;
+  line-height: 1;
+  vertical-align: middle;
+}
+
+.dayo-column-sort-button svg { display: block; }
+.dayo-column-sort-button svg path { opacity: .38; }
+.dayo-column-sort-button svg path.is-active {
+  color: var(--color-primary, #a52a2a);
+  opacity: 1;
+}
+.dayo-column-sort-button:hover { background: rgba(165, 42, 42, .08); }
+.dayo-column-sort-button:hover svg path { opacity: .8; }
+.dayo-column-sort-button:focus-visible {
+  outline: 2px solid var(--color-primary, #a52a2a);
+  outline-offset: 2px;
+}

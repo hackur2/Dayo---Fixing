@@ -1,0 +1,739 @@
+.inventory-summary-grid {
+  margin-bottom: 24px;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+}
+
+
+.inventory-summary-card {
+  min-height: 132px;
+  padding: 20px;
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-xl);
+  background: var(--color-white);
+  box-shadow: var(--shadow-card);
+}
+
+.inventory-summary-card.featured {
+  background: var(--color-primary);
+}
+
+.inventory-summary-card.warning {
+  background: var(--color-warning-bg);
+}
+
+.inventory-summary-card span {
+  display: block;
+  color: var(--color-muted);
+  font-size: 12px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.inventory-summary-card.featured span {
+  color: rgba(255, 255, 255, 0.86);
+}
+
+.inventory-summary-card strong {
+  display: block;
+  margin-top: 12px;
+  color: var(--color-text);
+  font-size: 30px;
+  line-height: 1.1;
+  font-weight: 900;
+}
+
+.inventory-summary-card.featured strong {
+  color: var(--color-white);
+}
+
+.inventory-summary-card.warning strong,
+.inventory-summary-card.warning span,
+.inventory-summary-card.warning p {
+  color: var(--color-warning-text);
+}
+
+.inventory-summary-card p {
+  margin: 8px 0 0;
+  color: var(--color-muted);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.inventory-summary-card.featured p {
+  color: rgba(255, 255, 255, 0.82);
+}
+
+.inventory-view-toggle-card,
+.inventory-menu-filter-card,
+.inventory-toolbar {
+  margin-bottom: 18px;
+  padding: 16px;
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-xl);
+  background: var(--color-white);
+  box-shadow: var(--shadow-card);
+}
+
+.inventory-view-toggle {
+  display: inline-flex;
+  padding: 5px;
+  border-radius: var(--radius-pill);
+  background: var(--color-soft-bg);
+  gap: 6px;
+}
+
+.inventory-view-toggle button {
+  min-height: 42px;
+  padding: 10px 18px;
+  border: none;
+  border-radius: var(--radius-pill);
+  background: transparent;
+  color: var(--color-muted);
+  font-size: 14px;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.inventory-view-toggle button.active {
+  background: var(--color-primary);
+  color: var(--color-white);
+}
+
+.inventory-toolbar {
+  display: grid;
+  grid-template-columns: minmax(180px, 1fr) 185px;
+  gap: 12px;
+}
+
+.inventory-toolbar input,
+.inventory-toolbar select,
+.inventory-menu-search {
+  min-height: 46px;
+  width: 100%;
+  padding: 10px 14px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-soft-bg);
+  color: var(--color-text);
+  font-size: 14px;
+  font-weight: 800;
+  outline: none;
+}
+
+.inventory-toolbar input:focus,
+.inventory-toolbar select:focus,
+.inventory-menu-search:focus {
+  border-color: var(--color-primary);
+}
+
+.inventory-menu-search {
+  margin-bottom: 16px;
+}
+
+.menu-main-category-grid {
+  margin-bottom: 18px;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.menu-main-category-card {
+  min-height: 92px;
+  padding: 16px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-white);
+  text-align: left;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  cursor: pointer;
+}
+
+.menu-main-category-card.active {
+  border-color: var(--color-primary);
+  background: var(--color-soft-bg);
+}
+
+.menu-main-category-card span {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-pill);
+  background: var(--color-primary);
+  color: var(--color-white);
+  font-size: 14px;
+  font-weight: 900;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.menu-main-category-card strong {
+  color: var(--color-text);
+  font-size: 15px;
+  font-weight: 900;
+}
+
+.menu-main-category-card p {
+  margin: 4px 0 0;
+  color: var(--color-muted);
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.menu-main-category-card small {
+  display: block;
+  margin-top: 4px;
+  color: var(--color-muted);
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+.menu-subcategory-pill-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.menu-subcategory-pill-row button {
+  min-height: 34px;
+  padding: 8px 14px;
+  border: none;
+  border-radius: var(--radius-pill);
+  background: var(--color-soft-bg);
+  color: var(--color-text);
+  font-size: 12px;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.menu-subcategory-pill-row button.active {
+  background: var(--color-primary);
+  color: var(--color-white);
+}
+
+.inventory-table-card {
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-xl);
+  background: var(--color-white);
+  box-shadow: var(--shadow-card);
+  overflow: hidden;
+}
+
+.inventory-table-header {
+  padding: 20px;
+  border-bottom: 1px solid var(--color-border-light);
+}
+
+.inventory-table-header h2 {
+  margin: 0;
+  color: var(--color-text);
+  font-size: 22px;
+  font-weight: 900;
+}
+
+.inventory-table-header p {
+  margin: 6px 0 0;
+  color: var(--color-muted);
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.inventory-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.inventory-table th {
+  padding: 14px 16px;
+  background: var(--color-soft-bg);
+  color: var(--color-muted);
+  font-size: 12px;
+  font-weight: 900;
+  text-align: left;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.inventory-table td {
+  padding: 16px;
+  border-top: 1px solid var(--color-border-light);
+  color: var(--color-text);
+  font-size: 14px;
+  font-weight: 700;
+  vertical-align: middle;
+}
+
+.inventory-table td strong {
+  color: var(--color-text);
+  font-weight: 900;
+}
+
+.inventory-status-badge,
+.menu-availability-badge {
+  display: inline-flex;
+  padding: 7px 11px;
+  border-radius: var(--radius-pill);
+  font-size: 12px;
+  font-weight: 900;
+  white-space: nowrap;
+}
+
+.inventory-status-badge.in-stock,
+.menu-availability-badge.available {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.inventory-status-badge.low-stock {
+  background: var(--color-warning-bg);
+  color: var(--color-warning-text);
+}
+
+.inventory-status-badge.out-of-stock,
+.menu-availability-badge.unavailable {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.inventory-small-button {
+  min-height: 36px;
+  padding: 8px 12px;
+  border-radius: var(--radius-pill);
+  font-size: 13px;
+}
+
+.inventory-delete-button {
+  margin-left: 6px;
+  border-color: #fecaca;
+  color: #991b1b;
+}
+
+.inventory-delete-button:hover {
+  background: #fef2f2;
+}
+
+.ingredient-requirement-list {
+  display: grid;
+  gap: 5px;
+}
+
+.ingredient-requirement-list span {
+  color: var(--color-muted);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.inventory-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  padding: 28px;
+  background: rgba(47, 36, 28, 0.48);
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  overflow-y: auto;
+}
+
+.inventory-modal {
+  width: min(100%, 720px);
+  padding: 22px;
+  border-radius: var(--radius-xl);
+  background: var(--color-white);
+  box-shadow: var(--shadow-floating);
+}
+
+.inventory-modal-header {
+  margin-bottom: 18px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.inventory-modal-header h2 {
+  margin: 0;
+  color: var(--color-text);
+  font-size: 24px;
+  font-weight: 900;
+}
+
+.inventory-modal-header button {
+  width: 38px;
+  height: 38px;
+  border: none;
+  border-radius: var(--radius-pill);
+  background: var(--color-soft-bg);
+  color: var(--color-text);
+  font-size: 24px;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.inventory-modal-form {
+  display: grid;
+  gap: 14px;
+}
+
+.inventory-modal-form label {
+  display: grid;
+  gap: 8px;
+  color: var(--color-text);
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.inventory-modal-form input,
+.inventory-modal-form select {
+  min-height: 44px;
+  width: 100%;
+  padding: 10px 14px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-soft-bg);
+  color: var(--color-text);
+  font-size: 14px;
+  font-weight: 800;
+  outline: none;
+}
+
+.inventory-modal-two-column {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.inventory-variant-builder {
+  padding: 14px;
+  border-radius: var(--radius-lg);
+  background: var(--color-soft-bg);
+  display: grid;
+  gap: 12px;
+}
+
+.inventory-variant-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.inventory-variant-header h3 {
+  margin: 0;
+  color: var(--color-text);
+  font-size: 15px;
+  font-weight: 900;
+}
+
+.inventory-variant-header p,
+.inventory-variant-empty {
+  margin: 4px 0 0;
+  color: var(--color-muted);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.inventory-variant-add,
+.inventory-variant-remove {
+  min-height: 40px;
+  padding: 8px 12px;
+  border: 1px solid var(--color-primary);
+  border-radius: var(--radius-pill);
+  background: var(--color-white);
+  color: var(--color-primary);
+  font-size: 12px;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.inventory-variant-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(110px, 0.7fr) auto;
+  align-items: end;
+  gap: 10px;
+}
+
+.inventory-variant-remove {
+  border-color: #fca5a5;
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.inventory-variant-error {
+  margin: 0;
+  color: #991b1b;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.ingredient-builder {
+  padding: 14px;
+  border-radius: var(--radius-lg);
+  background: var(--color-soft-bg);
+  display: grid;
+  gap: 12px;
+}
+
+.ingredient-builder-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.ingredient-builder-header h3 {
+  margin: 0;
+  color: var(--color-text);
+  font-size: 16px;
+  font-weight: 900;
+}
+
+.ingredient-builder-row {
+  display: grid;
+  grid-template-columns: 1fr 110px auto;
+  gap: 8px;
+}
+
+.ingredient-builder-row button {
+  min-height: 44px;
+  padding: 8px 12px;
+  border: none;
+  border-radius: var(--radius-md);
+  background: #fee2e2;
+  color: #991b1b;
+  font-size: 12px;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.inventory-modal-actions {
+  margin-top: 8px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+@media (max-width: 1200px) {
+  .inventory-summary-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .menu-main-category-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .inventory-toolbar {
+    grid-template-columns: 1fr;
+  }
+
+  .inventory-table-card {
+    overflow-x: auto;
+  }
+
+  .inventory-table {
+    min-width: 980px;
+  }
+}
+
+@media (max-width: 700px) {
+  .inventory-modal-two-column,
+  .ingredient-builder-row,
+  .inventory-variant-row {
+    grid-template-columns: 1fr;
+  }
+
+  .inventory-modal-actions {
+    flex-direction: column;
+  }
+}
+
+.inventory-heading-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.inventory-message {
+  margin-bottom: 18px;
+  padding: 14px 16px;
+  border-radius: var(--radius-lg);
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.inventory-message.warning {
+  background: var(--color-warning-bg);
+  color: var(--color-warning-text);
+}
+
+.inventory-message.danger {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+/* INVENTORY EDIT BUTTONS AND MODALS */
+
+.inventory-edit-modal {
+  width: min(100%, 760px);
+}
+
+.inventory-modal-form input[type="text"]:focus,
+.inventory-modal-form input[type="number"]:focus,
+.inventory-modal-form select:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(165, 42, 42, 0.12);
+}
+
+.menu-inventory-table .inventory-small-button {
+  white-space: nowrap;
+}
+
+.inventory-table td:last-child {
+  white-space: nowrap;
+}
+
+@media (max-width: 1200px) {
+  .menu-inventory-table {
+    min-width: 1080px;
+  }
+}
+
+/* INVENTORY IMAGE PICKER */
+
+.inventory-image-field {
+  display: grid;
+  gap: 8px;
+}
+
+.inventory-field-label {
+  color: var(--color-text);
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.inventory-image-picker-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 10px;
+  align-items: center;
+}
+
+.inventory-hidden-file-input {
+  display: none;
+}
+
+.inventory-browse-image-button {
+  min-height: 44px;
+  padding-inline: 16px;
+  white-space: nowrap;
+}
+
+.inventory-field-help,
+.inventory-expiration-help {
+  color: var(--color-muted);
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.4;
+}
+
+.inventory-image-preview {
+  width: 112px;
+  height: 112px;
+  overflow: hidden;
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-lg);
+  background: var(--color-soft-bg);
+}
+
+.inventory-image-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* INGREDIENT EXPIRATION */
+
+.inventory-expiration-card {
+  padding: 14px;
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-lg);
+  background: var(--color-soft-bg);
+  display: grid;
+  gap: 10px;
+}
+
+.inventory-expiration-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.inventory-expiration-heading strong {
+  color: var(--color-text);
+  font-size: 14px;
+  font-weight: 900;
+}
+
+.inventory-expiration-heading span {
+  color: var(--color-muted);
+  font-size: 11px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.inventory-expiration-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.inventory-expiration-help.success {
+  color: #166534;
+}
+
+.inventory-expiration-help.error {
+  color: #991b1b;
+}
+
+.inventory-modal-form input[type="date"]:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(165, 42, 42, 0.12);
+}
+
+@media (max-width: 700px) {
+  .inventory-image-picker-row,
+  .inventory-expiration-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .inventory-browse-image-button {
+    width: 100%;
+  }
+}
+
+/* Keep the menu search above category buttons. Sorting is in column headings. */
+.inventory-menu-search-sort {
+  display: grid;
+  grid-template-columns: minmax(180px, 1fr);
+  gap: 12px;
+  margin-bottom: 16px;
+  align-items: stretch;
+}
+.inventory-menu-search-sort .inventory-menu-search { margin-bottom: 0; }
+@media (max-width: 720px) {
+  .inventory-menu-search-sort { grid-template-columns: 1fr; }
+}
+@media (min-width: 721px) and (max-width: 1120px) {
+  .inventory-toolbar { grid-template-columns: 1fr 1fr; }
+}
