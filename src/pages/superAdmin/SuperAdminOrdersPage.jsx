@@ -1,10 +1,13 @@
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { useSearchParams } from "react-router";
 
 import { useSuperAdminOrdersData } from "../../hooks/useSuperAdminOrdersData";
 import SortableHeader from "../../components/common/SortableHeader";
+import Pagination from "../../components/common/Pagination";
+import { usePagination } from "../../hooks/usePagination";
 import { getOrderDateTime, sortRecords } from "../../utils/sortUtils";
+import { getOrderSourceLabel } from "../../utils/orderUtils";
 
 import "../../styles/superAdminOrders.css";
 
@@ -37,10 +40,10 @@ function SuperAdminOrdersPage() {
   const { orders, isOrdersLoading, ordersError } = useSuperAdminOrdersData();
 
   const [searchTerm, setSearchTerm] = useState("");
-  const [statusFilter, setStatusFilter] = useState(initialStatus);
-  useEffect(() => {
-    setStatusFilter(initialStatus);
-  }, [initialStatus]);
+  const [statusSelection, setStatusSelection] = useState({ requested: initialStatus, value: initialStatus });
+  if (statusSelection.requested !== initialStatus) setStatusSelection({ requested: initialStatus, value: initialStatus });
+  const statusFilter = statusSelection.requested === initialStatus ? statusSelection.value : initialStatus;
+  const setStatusFilter = (value) => setStatusSelection({ requested: initialStatus, value });
   const [sourceFilter, setSourceFilter] = useState("All");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
@@ -61,33 +64,6 @@ function SuperAdminOrdersPage() {
     const date = order.orderDate || order.createdAt?.slice(0, 10) || "";
     return (!startDate || date >= startDate) && (!endDate || date <= endDate);
   }), [orders, startDate, endDate]);
-
-  const orderSummary = useMemo(() => {
-    const completedOrders = dateFilteredOrders.filter(
-      (order) => order.status === "Completed"
-    );
-
-    const activeOrders = dateFilteredOrders.filter((order) =>
-      ["Pending", "Preparing", "Ready"].includes(order.status)
-    );
-
-    const cancelledOrders = dateFilteredOrders.filter(
-      (order) => order.status === "Cancelled"
-    );
-
-    const totalRevenue = completedOrders.reduce(
-      (total, order) => total + order.totalAmount,
-      0
-    );
-
-    return {
-      totalOrders: dateFilteredOrders.length,
-      activeOrders: activeOrders.length,
-      completedOrders: completedOrders.length,
-      cancelledOrders: cancelledOrders.length,
-      totalRevenue,
-    };
-  }, [dateFilteredOrders]);
 
   const filteredOrders = useMemo(() => {
     const searchValue = searchTerm.trim().toLowerCase();
@@ -111,7 +87,7 @@ function SuperAdminOrdersPage() {
       date: [(order) => getOrderDateTime(order), "date"],
       customer: [(order) => order.customerName, "text"],
       orderNumber: [(order) => order.orderNumber, "text"],
-      source: [(order) => order.source, "text"],
+      source: [(order) => getOrderSourceLabel(order.source), "text"],
       status: [(order) => order.status, "text"],
       payment: [(order) => order.paymentStatus, "text"],
       total: [(order) => order.totalAmount, "number"],
@@ -119,6 +95,7 @@ function SuperAdminOrdersPage() {
     const [getter, type] = getters[sortBy];
     return sortRecords(matches, getter, sortDirection, type);
   }, [dateFilteredOrders, searchTerm, statusFilter, sourceFilter, sortBy, sortDirection]);
+  const pagination = usePagination(filteredOrders, [searchTerm, statusFilter, sourceFilter, startDate, endDate, sortBy, sortDirection]);
 
   if (isOrdersLoading) {
     return (
@@ -148,32 +125,6 @@ function SuperAdminOrdersPage() {
       {ordersError && (
         <section className="orders-message warning">{ordersError}</section>
       )}
-
-      <section className="orders-summary-grid">
-        <article className="orders-summary-card featured">
-          <span>Total Revenue</span>
-          <strong>{formatPeso(orderSummary.totalRevenue)}</strong>
-          <p></p>
-        </article>
-
-        <article className="orders-summary-card">
-          <span>Total Orders</span>
-          <strong>{orderSummary.totalOrders}</strong>
-          <p></p>
-        </article>
-
-        <article className="orders-summary-card">
-          <span>Active Orders</span>
-          <strong>{orderSummary.activeOrders}</strong>
-          <p></p>
-        </article>
-
-        <article className="orders-summary-card danger">
-          <span>Cancelled</span>
-          <strong>{orderSummary.cancelledOrders}</strong>
-          <p></p>
-        </article>
-      </section>
 
       <section className="orders-toolbar">
         <input
@@ -230,7 +181,7 @@ function SuperAdminOrdersPage() {
         >
           {SOURCE_OPTIONS.map((source) => (
             <option key={source} value={source}>
-              {source}
+              {getOrderSourceLabel(source)}
             </option>
           ))}
         </select>
@@ -260,7 +211,7 @@ function SuperAdminOrdersPage() {
             </thead>
 
             <tbody>
-              {filteredOrders.map((order) => (
+              {pagination.rows.map((order) => (
                 <tr key={order.id}>
                   <td>
                     <strong>{order.orderNumber}</strong>
@@ -268,7 +219,7 @@ function SuperAdminOrdersPage() {
 
                   <td>{order.customerName}</td>
 
-                  <td>{order.source}</td>
+                  <td>{getOrderSourceLabel(order.source)}</td>
 
                   <td>
                     {order.orderDate}
@@ -317,6 +268,7 @@ function SuperAdminOrdersPage() {
             <p>Try changing the search keyword, status, or source filter.</p>
           </section>
         )}
+        <Pagination pagination={pagination} label="Order Summary" onPageChange={pagination.setPage} />
       </section>
 
       {selectedOrder && (
@@ -341,7 +293,7 @@ function SuperAdminOrdersPage() {
 
               <article>
                 <span>Source</span>
-                <strong>{selectedOrder.source}</strong>
+                <strong>{getOrderSourceLabel(selectedOrder.source)}</strong>
               </article>
 
               <article>
@@ -382,11 +334,6 @@ function SuperAdminOrdersPage() {
                   <span>{formatPeso(item.quantity * item.price)}</span>
                 </div>
               ))}
-            </div>
-
-            <div className="orders-modal-vat">
-              <span>VAT</span>
-              <strong>{formatPeso(0)}</strong>
             </div>
 
             <div className="orders-modal-total">

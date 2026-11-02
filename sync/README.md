@@ -1,0 +1,46 @@
+# Dashboard cloud synchronization
+
+The Dashboard button calls `request_cloud_sync()` using the signed-in local Supabase session. Only authorized Super Admins can request or inspect runs. The worker reads requests directly from local Postgres, then calls the cloud's service-role-only `apply_cloud_sync_batch` RPC. No cloud secret, database URL, or privileged connection is exposed to browser code. The button shows running progress, the last successful upload and cloud-check timestamps, and actual errors. Detailed record counts remain in the protected status RPC and database history. Reloading the page does not lose sync status.
+
+## Install or upgrade
+
+1. Stop the existing worker: `docker compose -f docker/docker-compose.yml --env-file docker/.env.docker.local stop cloud-sync`.
+2. Apply compatible business schemas on both databases. The existing `20261020150000_local_cloud_sync.sql` migration installs mirror guards. Apply `supabase/migrations/20261030000003_safe_cloud_sync.sql`, then `20261030000005_sync_receiver_performance.sql`, then `20261031000000_sync_conflict_http_errors.sql` on both databases. The receiver caches table metadata per table and has a bounded 90-second SQL timeout. The final correction changes business conflicts to non-retrying HTTP 409 errors, preventing PostgREST 14 from looping on `40001`. Ordinary browser-query limits are unchanged. `20261030000006_sync_schema_compatibility.sql` adds the missing optional archive/expiry columns without clearing stock or changing expiry dates. Existing kg/L installations must apply the quantity-preserving unit migration before sending canonical-unit inventory changes.
+3. Run `supabase/snippets/cloud_sync_local_setup.sql` **only on local Supabase**, using its SQL Editor or a database administrator connection. Existing business rows and queue history are retained. A baseline of current rows is queued once so records created before capture are included. The local seed configuration uses this setup on future resets. Do not run the legacy `supabase/local_sync.sql` after upgrading.
+4. Set server-only `LOCAL_DATABASE_URL`, `CLOUD_SUPABASE_URL`, and `CLOUD_SUPABASE_SERVICE_ROLE_KEY` in `docker/.env.docker.local`. Keep the frontend's `VITE_SUPABASE_URL` and publishable key pointed at **local** Supabase. The cloud service-role key must never use a `VITE_` variable.
+5. Rebuild: `docker compose -f docker/docker-compose.yml --env-file docker/.env.docker.local up -d --build`.
+
+Manual requests are checked every 2 seconds (`SYNC_POLL_MS`); background retries run every 5 minutes (`SYNC_INTERVAL_MS`). `SYNC_REQUEST_TIMEOUT_MS` defaults to 180,000 ms, allowing time for upload and the bounded receiving transaction. The worker maintains a heartbeat and the UI reports when it is unavailable or not configured. Internet failure does not affect local database writes. A timed-out request retains its batch ID and payload for a duplicate-safe retry while that data remains in the active window.
+
+## Current scope: the past hour
+
+`local_sync.settings.sync_window_seconds` defaults to **3600**. Sales qualify by the order's original creation time; order lines and deduction markers inherit their parent order's creation time. Stock movements and feedback use their creation time. Live inventory/menu edits use their recorded update time. An undated imported baseline lookup is not treated as newly registered merely because it was enqueued recently.
+
+Older pending/failed events become `deferred`, with their original rows, errors and versions retained. An old persisted batch is marked `superseded_at`; its ID and payload are never rewritten or marked confirmed. If only part qualifies, a new persisted replacement batch contains the eligible events. Repeated clicks and automatic retries cannot re-send the excluded year-data. The protected status RPC retains the window and excluded count separately from current failures.
+
+`last_successful_sync_at` advances only after a non-empty batch receives a matching cloud confirmation and is acknowledged locally. `last_cloud_check_at` records a successful run/connectivity confirmation, including an empty queue. A successful check with zero recent records can therefore leave **Last successful sync: Never** while displaying a real successful cloud-check time. No demo order is fabricated to change that timestamp.
+
+## Record and transaction rules
+
+- Supported tables: ingredients and archives, menu/category/recipe/variant/combo records, stock movements, orders, order items, inventory-deduction markers, promotions, feedback, staff/shifts, and suppliers when present. Sales are the existing completed orders and order items; no duplicate sales table is created.
+- `local_sync.outbox` captures each change in the same transaction as the business write. `local_sync.record_status` tracks each table/primary-key pair with `sync_status`, source version, and `last_synced_at`. Composite keys are supported. JSON payloads are sent as text to preserve bigint IDs beyond JavaScript's safe integer range.
+- One batch contains the final snapshot of each changed record from a whole committed local transaction. The legacy backlog and one-time current baseline form one atomic baseline because old transaction boundaries cannot be recovered. The receiver defers foreign-key checks only inside its transaction, then validates them before confirming the batch. Unrelated local transactions may succeed before a later batch fails; the UI reports those confirmed records separately from failed records.
+- Existing cloud rows are compared by primary key. Identical data is confirmed without inserting another row. On first adoption, a different existing row can be updated only when both sides have `updated_at` and the local timestamp is strictly newer. A different row without a trustworthy update timestamp requires review.
+- After a confirmed sync, cloud-side metadata tracks the source version and confirmed business values. A lower/reused source version, another local source owning the ID, an independently changed cloud row, or a cloud deletion produces a conflict. A cloud edit is protected even if the local edit has a later timestamp. Per-field merging and cloud-to-local downloading are not performed.
+- A stable batch ID and durable cloud receipt make retries safe after the cloud commits but the response is lost. Final saved values, including supplied generated sales totals, are checked after triggers and foreign-key checks before confirmation. The local acknowledgement is transactional. A newer local edit is never marked synced by confirmation of an older version. Separate worker instances use a database advisory lock to prevent overlapping runs.
+- Local removals are retained as `skipped` metadata; no cloud DELETE is issued. An unsent create/remove pair is skipped. Cloud copies of previously synced rows remain. Local removal and cloud retention can therefore intentionally differ.
+- Auth users, profiles, QR secrets, Storage files, and application credentials are excluded. Cloud-specific user references are preserved on updates and null on new inserts, avoiding references to local-only users. Both databases must use compatible business schemas.
+
+## Failure and conflict recovery
+
+The queue, source UUID, batches, receipts, and status tables are durable. Do not truncate them or reset a source UUID as a way to retry. Retry with **Sync to Cloud** after restoring the connection or worker. An interrupted worker recovers the previous run as failed and retries eligible persisted batches. A zero-record connectivity check updates only the separate cloud-check timestamp.
+
+A conflict leaves the entire affected transaction unapplied and pending. Review the local batch and protected cloud record with a database administrator, decide which business values to retain, and resolve the conflict explicitly before retrying. The system never chooses to overwrite an independent cloud edit automatically. Large baselines remain one transaction; if the API or database rejects a payload, all of that batch stays queued rather than being partly acknowledged.
+
+Business conflicts use `PT409`, rather than PostgreSQL serialization failure `40001`. PostgREST 14 can internally retry `40001` indefinitely after the HTTP client disconnects, occupying the API connection pool. `PGRST003` is reported specifically as a pool-acquisition timeout. On an affected deployment, stop the worker, back up and apply the correction, then verify old looping calls have ended. Terminate only positively identified stale sync RPC backends if any remain. Resolve the specific conflicting values explicitly before restarting the worker. See the [October 31 repair and verification](../docs/cloud-sync-repair-20261031.md).
+
+## Verification
+
+`node --test --test-concurrency=1 tests/cloudSync.test.mjs tests/cloudSyncDiagnostics.test.mjs tests/cloudSyncService.test.mjs`
+
+The integration tests use separate local and cloud PostgreSQL-compatible databases. They cover inserts/updates, the initial baseline, generated sales totals, exact bigint IDs, composite keys, stock completion replay, transaction rollback, timestamp and version conflicts, lost responses, local acknowledgement failures, edits during upload, deletion retention, empty-queue network failure, authorization, and safe retries.

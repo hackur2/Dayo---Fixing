@@ -53,7 +53,9 @@ function MenuImagePicker({ imageUrl, imageFileName, onChange }) {
 
     try {
       const extension = file.name.split(".").pop()?.toLowerCase() || "image";
-      const filePath = `${crypto.randomUUID()}.${extension}`;
+      const randomBytes = crypto.getRandomValues(new Uint8Array(16));
+      const imageId = Array.from(randomBytes, (byte) => byte.toString(16).padStart(2, "0")).join("");
+      const filePath = `${imageId}.${extension}`;
       const { error } = await supabase.storage
         .from(IMAGE_BUCKET)
         .upload(filePath, file, {

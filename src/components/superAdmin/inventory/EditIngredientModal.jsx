@@ -1,20 +1,24 @@
 import { useState } from "react";
 
 import { INGREDIENT_CATEGORY_OPTIONS } from "../../../constants/inventory";
+import IngredientReorderFields from "./IngredientReorderFields";
+import IngredientUnitSelect from "./IngredientUnitSelect";
+import { isIngredientUnit, normalizeIngredientUnit } from "../../../utils/ingredientUnitUtils";
+import { calculateIngredientReorderPoint } from "../../../utils/ingredientReorderUtils";
 import {
   formatExpirationDate,
   getInventoryTimestamp,
-  getTodayDateInputValue,
   parseRelativeExpirationInput,
 } from "../../../utils/inventoryUtils";
 
 function EditIngredientModal({ ingredient, onSave, onClose }) {
+  const [isSaving, setIsSaving] = useState(false);
+  const [saveError, setSaveError] = useState("");
   const [formData, setFormData] = useState(() => ({
     name: ingredient.name || "",
     category: ingredient.category || "Food Ingredient",
-    unit: ingredient.unit || "pcs",
+    unit: isIngredientUnit(normalizeIngredientUnit(ingredient.unit)) ? normalizeIngredientUnit(ingredient.unit) : "",
     currentStock: String(ingredient.currentStock ?? ""),
-    reorderLevel: String(ingredient.reorderLevel ?? ""),
     expirationInput: "",
     expiresOn: ingredient.expiresOn || "",
   }));
@@ -39,31 +43,39 @@ function EditIngredientModal({ ingredient, onSave, onClose }) {
     }));
   }
 
-  function handleSubmit(event) {
+  async function handleSubmit(event) {
     event.preventDefault();
+    if (isSaving) return;
 
     const hasInvalidExpiration =
       formData.expirationInput.trim() !== "" && formData.expiresOn === "";
 
     const isIncomplete =
       !formData.name.trim() ||
-      !formData.unit.trim() ||
+      !isIngredientUnit(formData.unit) ||
       formData.currentStock === "" ||
-      formData.reorderLevel === "" ||
       hasInvalidExpiration;
 
     if (isIncomplete) return;
 
-    onSave({
-      ...ingredient,
-      name: formData.name.trim(),
-      category: formData.category,
-      unit: formData.unit.trim(),
-      currentStock: Number(formData.currentStock),
-      reorderLevel: Number(formData.reorderLevel),
-      expiresOn: formData.expiresOn || "",
-      lastUpdated: getInventoryTimestamp(),
-    });
+    setIsSaving(true);
+    setSaveError("");
+    try {
+      await onSave({
+        ...ingredient,
+        name: formData.name.trim(),
+        category: formData.category,
+        unit: formData.unit,
+        currentStock: Number(formData.currentStock),
+        reorderLevel: calculateIngredientReorderPoint(ingredient.quantitySold30Days ?? 0).reorderLevel,
+        expiresOn: formData.expiresOn || "",
+        lastUpdated: getInventoryTimestamp(),
+      });
+    } catch (error) {
+      setSaveError(error.message || "Unable to save the ingredient. Please try again.");
+    } finally {
+      setIsSaving(false);
+    }
   }
 
   const hasInvalidRelativeInput =
@@ -72,19 +84,21 @@ function EditIngredientModal({ ingredient, onSave, onClose }) {
 
   return (
     <div className="inventory-modal-backdrop">
-      <section className="inventory-modal inventory-edit-modal">
+      <section className="inventory-modal inventory-edit-modal" role="dialog" aria-modal="true" aria-labelledby="edit-ingredient-title">
         <div className="inventory-modal-header">
           <div>
             <p className="admin-eyebrow">Inventory Update</p>
-            <h2>Edit Ingredient</h2>
+            <h2 id="edit-ingredient-title">Edit Ingredient</h2>
           </div>
 
-          <button type="button" onClick={onClose}>
+          <button type="button" onClick={onClose} disabled={isSaving} aria-label="Close ingredient editor">
             ×
           </button>
         </div>
 
-        <form className="inventory-modal-form" onSubmit={handleSubmit}>
+        <form className="inventory-modal-form" onSubmit={handleSubmit} aria-busy={isSaving}>
+          {saveError && <p className="inventory-message danger" role="alert">{saveError}</p>}
+          <fieldset className="inventory-edit-fields" disabled={isSaving}>
           <label>
             Ingredient Name
             <input
@@ -110,40 +124,26 @@ function EditIngredientModal({ ingredient, onSave, onClose }) {
             </select>
           </label>
 
-          <label>
-            Unit of Measure
-            <input
-              type="text"
-              name="unit"
-              value={formData.unit}
-              onChange={handleChange}
-              placeholder="pcs, kg, packs, ml"
-            />
-          </label>
+          <IngredientUnitSelect value={formData.unit} onChange={handleChange} />
+          {!isIngredientUnit(normalizeIngredientUnit(ingredient.unit)) && <small className="inventory-expiration-help">Existing quantities are recorded in {ingredient.unit || "an unspecified unit"}. Convert the stock, recipes, and sales history together before saving a different unit.</small>}
 
-          <div className="inventory-modal-two-column">
+          <div className="inventory-stock-field">
             <label>
               Current Stock
               <input
                 type="number"
                 min="0"
+                step="0.001"
+                required
                 name="currentStock"
                 value={formData.currentStock}
                 onChange={handleChange}
               />
             </label>
 
-            <label>
-              Reorder Level
-              <input
-                type="number"
-                min="0"
-                name="reorderLevel"
-                value={formData.reorderLevel}
-                onChange={handleChange}
-              />
-            </label>
           </div>
+
+          <IngredientReorderFields quantitySold30Days={ingredient.quantitySold30Days ?? 0} unit={formData.unit || "units"} />
 
           <div className="inventory-expiration-card">
             <div className="inventory-expiration-heading">
@@ -168,7 +168,6 @@ function EditIngredientModal({ ingredient, onSave, onClose }) {
                 Exact date
                 <input
                   type="date"
-                  min={getTodayDateInputValue()}
                   name="expiresOn"
                   value={formData.expiresOn}
                   onChange={handleChange}
@@ -191,17 +190,19 @@ function EditIngredientModal({ ingredient, onSave, onClose }) {
             )}
           </div>
 
+          </fieldset>
           <div className="inventory-modal-actions">
             <button
               type="button"
               className="secondary-button"
               onClick={onClose}
+              disabled={isSaving}
             >
               Cancel
             </button>
 
-            <button type="submit" className="primary-button">
-              Save Changes
+            <button type="submit" className="primary-button" disabled={isSaving}>
+              {isSaving ? "Saving..." : "Save Changes"}
             </button>
           </div>
         </form>

@@ -145,7 +145,7 @@ function AdminPosPage({ panelLabel = "Admin Panel" }) {
       setPosForm(DEFAULT_POS_FORM);
       setPosErrors({});
     } catch (error) {
-      console.error("Manual POS order failed:", error.message);
+      console.error("Order Taker order failed:", error.message);
     }
   }
 
@@ -154,7 +154,7 @@ function AdminPosPage({ panelLabel = "Admin Panel" }) {
       <div className="admin-page-heading">
         <div>
           <p className="admin-eyebrow">{panelLabel}</p>
-          <h1>POS</h1>
+          <h1>Order Taker</h1>
         </div>
       </div>
 

@@ -1,55 +1,117 @@
 import { supabase } from "../lib/supabase";
+import { normalizeIngredient } from "../adapters/inventoryAdapter";
+import { getStockStatus } from "../utils/inventoryUtils";
+import { buildShelfLifeSummary, getDashboardDate } from "../utils/dashboardUtils";
+import { buildPotentialExcess } from "../utils/potentialExcessUtils";
+import { getWeeklyStockMovements } from "./potentialExcessService";
+import { synchronizeIngredientExpiry } from "./ingredientExpiryService";
+import { getIngredientSales30Days } from "./ingredientReorderService";
+import { applyIngredientReorderPoints } from "../utils/ingredientReorderUtils";
 
-export const dashboardService = {
-  async getDashboardSummary() {
-    const [ordersResult, ingredientsResult, menuResult, feedbackResult] = await Promise.all([
-      supabase.from("orders").select("id,status,source,created_at,order_items(*)"),
-      supabase.from("ingredients").select("id,name,current_stock,reorder_level,unit"),
-      supabase.from("menu_items").select("id").eq("is_active", true),
-      supabase.from("feedback").select("id"),
-    ]);
-    for (const result of [ordersResult, ingredientsResult, menuResult, feedbackResult]) if (result.error) throw result.error;
-    const orders = ordersResult.data;
-    const today = new Date().toISOString().slice(0, 10);
-    const todaysOrders = orders.filter((order) => order.created_at.slice(0, 10) === today);
-    const sales = todaysOrders.filter((order) => order.status === "Completed");
-    const lowStockItems = ingredientsResult.data.filter((item) => Number(item.current_stock) <= Number(item.reorder_level)).map((item) => ({ id: item.id, name: item.name, currentStock: item.current_stock, reorderLevel: item.reorder_level, unit: item.unit }));
-    const topItems = new Map();
-    for (const order of sales) for (const item of order.order_items) {
-      const row = topItems.get(item.menu_item_id) || { id: item.menu_item_id, name: item.item_name, quantitySold: 0, revenue: 0 };
-      row.quantitySold += Number(item.quantity); row.revenue += Number(item.subtotal); topItems.set(item.menu_item_id, row);
+export function createDashboardService(client) {
+  async function getAllRecords(table, columns) {
+    const records = [];
+    const pageSize = 1000;
+    for (let offset = 0; ; offset += pageSize) {
+      const result = await client.from(table).select(columns)
+        .order("id", { ascending: true }).range(offset, offset + pageSize - 1);
+      if (result.error) throw result.error;
+      const page = result.data ?? [];
+      records.push(...page);
+      if (page.length < pageSize) return { data: records };
     }
-    const revenueTrend = Array.from({ length: 7 }, (_, i) => {
-      const date = new Date(); date.setDate(date.getDate() - 6 + i); const day = date.toISOString().slice(0, 10);
-      const matching = orders.filter((order) => order.created_at.slice(0, 10) === day && order.status === "Completed");
-      return { date: day, label: day.slice(5), totalSales: matching.reduce((sum, order) => sum + order.order_items.reduce((n, item) => n + Number(item.subtotal), 0), 0), totalOrders: matching.length };
-    });
-    return {
-      totalSales: sales.reduce((sum, order) => sum + order.order_items.reduce((n, item) => n + Number(item.subtotal), 0), 0),
-      ordersToday: todaysOrders.length, menuItemsCount: menuResult.data.length, feedbackCount: feedbackResult.data.length,
-      lowStockCount: lowStockItems.length, lowStockItems, revenueTrend,
-      orderSources: [
-        {
-          source: "QR Order",
-          count: todaysOrders.filter((order) => order.source === "QR Order" && !hasSumoAiRecommendation(order)).length,
-        },
-        {
-          source: "Manual POS",
-          count: todaysOrders.filter((order) => order.source === "Manual POS").length,
-        },
-        {
-          source: "Sumo AI",
-          count: todaysOrders.filter((order) => order.source === "Sumo AI" || hasSumoAiRecommendation(order)).length,
-        },
-      ],
-      orderPipeline: ["Pending", "Preparing", "Ready", "Completed"].map((status) => ({ status, count: todaysOrders.filter((order) => order.status === status).length })),
-      topSellingItems: [...topItems.values()].sort((a, b) => b.quantitySold - a.quantitySold).slice(0, 5),
-    };
-  },
-};
+  }
 
-function hasSumoAiRecommendation(order) {
-  return (order.order_items || []).some((item) =>
-    (item.recommendation_source ?? item.recommendationSource) === "Sumo AI"
-  );
+  return {
+    async getDashboardSummary(now = new Date()) {
+      await synchronizeIngredientExpiry(client, now);
+      const today = getDashboardDate(now);
+      const results = await Promise.all([
+        getAllRecords("orders", "id,status,source,created_at,order_items(menu_item_id,item_name,quantity,subtotal,recommendation_source)"),
+        getAllRecords("ingredients", "*"),
+        getWeeklyStockMovements(client, today),
+        client.from("staff_shifts").select("id", { count: "exact", head: true }).eq("status", "On Duty"),
+        getIngredientSales30Days(client, now),
+      ]);
+
+      for (const result of results) {
+        if (result.error) throw result.error;
+      }
+
+      const [ordersResult, ingredientsResult, stockMovements, staffResult, ingredientSales] = results;
+      const orders = ordersResult.data ?? [];
+      const completedOrders = orders.filter((order) => order.status === "Completed");
+      const ingredients = applyIngredientReorderPoints((ingredientsResult.data ?? []).filter((row) => !row.archived_at), ingredientSales, now).map(normalizeIngredient);
+      const lowStockItems = ingredients.filter((item) => getStockStatus(item) === "Low Stock");
+      const topItems = new Map();
+      const dailyRevenue = new Map();
+      const dailyActivity = new Map();
+      let totalSales = 0;
+      let todaySales = 0;
+
+      for (const order of orders) {
+        const date = getDashboardDate(order.created_at);
+        if (date && order.status !== "Cancelled") {
+          dailyActivity.set(date, (dailyActivity.get(date) ?? 0) + 1);
+        }
+      }
+
+      for (const order of completedOrders) {
+        const date = getDashboardDate(order.created_at);
+        const dailyTotal = dailyRevenue.get(date) ?? { date, totalSales: 0, totalOrders: 0 };
+        dailyTotal.totalOrders += 1;
+        for (const item of order.order_items ?? []) {
+          const revenue = Number(item.subtotal ?? 0);
+          totalSales += revenue;
+          dailyTotal.totalSales += revenue;
+          if (date === today) todaySales += revenue;
+          // Deleted menu items retain their order-time name and sales history.
+          const key = item.menu_item_id ?? item.item_name;
+          const row = topItems.get(key) ?? {
+            id: key,
+            name: item.item_name,
+            quantitySold: 0,
+            revenue: 0,
+          };
+          row.quantitySold += Number(item.quantity ?? 0);
+          row.revenue += revenue;
+          topItems.set(key, row);
+        }
+        if (date) dailyRevenue.set(date, dailyTotal);
+      }
+
+      return {
+        asOfDate: today,
+        ingredientCount: ingredients.length,
+        shelfLife: buildShelfLifeSummary(ingredients, today),
+        potentialExcess: buildPotentialExcess({ ingredients, stockMovements, asOfDate: today }),
+        revenueTrend: [...dailyRevenue.values()].sort((a, b) => a.date.localeCompare(b.date)),
+        customerActivity: [...dailyActivity].map(([date, count]) => ({ date, count })).sort((a, b) => a.date.localeCompare(b.date)),
+        totalSales,
+        todaySales,
+        totalOrders: orders.length,
+        orderSources: ["QR Order", "Manual POS", "Sumo AI"].map((source) => ({
+          source,
+          count: orders.filter((order) => {
+            const orderSource = (order.order_items ?? []).some((item) => item.recommendation_source === "Sumo AI")
+              ? "Sumo AI"
+              : order.source || "QR Order";
+            return orderSource === source;
+          }).length,
+        })),
+        lowStockCount: lowStockItems.length,
+        lowStockItems,
+        activeStaffCount: staffResult.count ?? 0,
+        orderPipeline: ["Pending", "Preparing", "Ready", "Completed", "Cancelled"].map((status) => ({
+          status,
+          count: orders.filter((order) => order.status === status).length,
+        })),
+        topSellingItems: [...topItems.values()]
+          .sort((a, b) => b.quantitySold - a.quantitySold || b.revenue - a.revenue)
+          .slice(0, 5),
+      };
+    },
+  };
 }
+
+export const dashboardService = createDashboardService(supabase);

@@ -3,6 +3,8 @@ import { useMemo, useState } from "react";
 
 import AdminOrderDetailsModal from "../../components/admin/AdminOrderDetailsModal";
 import SortableHeader from "../../components/common/SortableHeader";
+import Pagination from "../../components/common/Pagination";
+import { usePagination } from "../../hooks/usePagination";
 import { getOrderDateTime, sortRecords } from "../../utils/sortUtils";
 
 import { useAdminOrders } from "../../hooks/useAdminOrders";
@@ -75,6 +77,7 @@ function AdminOrderSummaryPage() {
     const [getter, type] = getters[sortBy];
     return sortRecords(matches, getter, sortDirection, type);
   }, [adminOrders, searchTerm, statusFilter, sortBy, sortDirection]);
+  const pagination = usePagination(filteredOrders, [searchTerm, statusFilter, sortBy, sortDirection]);
 
   const summary = useMemo(() => {
     const completedOrders = adminOrders.filter(
@@ -179,7 +182,7 @@ function AdminOrderSummaryPage() {
             </thead>
 
             <tbody>
-              {filteredOrders.map((order) => (
+              {pagination.rows.map((order) => (
                 <tr key={order.orderNumber}>
                   <td>{order.orderNumber}</td>
                   <td>{order.customerName}</td>
@@ -212,6 +215,7 @@ function AdminOrderSummaryPage() {
             <p>Try changing the search keyword or status filter.</p>
           </section>
         )}
+        <Pagination pagination={pagination} label="Order Summary" disabled={isLoadingAdminOrders} onPageChange={pagination.setPage} />
       </section>
 
       <AdminOrderDetailsModal

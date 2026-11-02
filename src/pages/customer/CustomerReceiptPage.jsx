@@ -96,10 +96,6 @@ function CustomerReceiptPage({ currentOrder, onStartNewOrder }) {
         </section>
 
         <section className="receipt-total-card">
-          <span>VAT</span>
-          <strong>₱0.00</strong>
-        </section>
-        <section className="receipt-total-card">
           <span>Total Amount</span>
           <strong>₱{orderData.totalAmount.toFixed(2)}</strong>
         </section>

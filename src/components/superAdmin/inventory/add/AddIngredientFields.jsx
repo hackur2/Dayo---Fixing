@@ -1,4 +1,6 @@
 import { INGREDIENT_CATEGORY_OPTIONS } from "../../../../constants/inventory";
+import IngredientReorderFields from "../IngredientReorderFields";
+import IngredientUnitSelect from "../IngredientUnitSelect";
 import {
   formatExpirationDate,
   getTodayDateInputValue,
@@ -64,27 +66,16 @@ function AddIngredientFields({ formData, onChange }) {
         </select>
       </label>
 
-      <label>
-        Unit of Measure
-        <input
-          type="text"
-          value={formData.unit}
-          onChange={(event) =>
-            onChange({
-              ...formData,
-              unit: event.target.value,
-            })
-          }
-          placeholder="pcs, kg, packs, ml"
-        />
-      </label>
+      <IngredientUnitSelect value={formData.unit} onChange={(event) => onChange({ ...formData, unit: event.target.value })} />
 
-      <div className="inventory-modal-two-column">
+      <div className="inventory-stock-field">
         <label>
           Current Stock
           <input
             type="number"
             min="0"
+            step="0.001"
+            required
             value={formData.currentStock}
             onChange={(event) =>
               onChange({
@@ -95,21 +86,15 @@ function AddIngredientFields({ formData, onChange }) {
           />
         </label>
 
-        <label>
-          Reorder Level
-          <input
-            type="number"
-            min="0"
-            value={formData.reorderLevel}
-            onChange={(event) =>
-              onChange({
-                ...formData,
-                reorderLevel: event.target.value,
-              })
-            }
-          />
-        </label>
       </div>
+
+      <IngredientReorderFields unit={formData.unit || "units"} isNew />
+
+      <label>
+        Unit Cost (₱ per {formData.unit || "unit"})
+        <input type="number" min="0" step="0.0000001" value={formData.unitCost} onChange={(event) => onChange({ ...formData, unitCost: event.target.value })} placeholder="Enter purchase cost per unit" />
+        <small className="inventory-expiration-help">Optional. Used for inventory value and ingredient revenue estimates.</small>
+      </label>
 
       <div className="inventory-expiration-card">
         <div className="inventory-expiration-heading">

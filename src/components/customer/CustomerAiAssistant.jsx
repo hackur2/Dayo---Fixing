@@ -1,6 +1,7 @@
-import { useEffect, useId, useRef, useState } from "react";
+import { useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
 
 import { getAiPromptError } from "../../utils/contentValidationUtils";
+import { AI_LANGUAGE_WARNING, containsAiProfanity } from "../../utils/aiLanguageUtils";
 import { getItemDisplayPrice, getItemQuantity } from "../../utils/cartUtils";
 import { askMenuAssistant } from "../../services/aiAssistantService";
 
@@ -20,14 +21,16 @@ function CustomerAiAssistant({ menuItems = [], expiringIngredientContext = [], c
   const [showSuggestionBubble, setShowSuggestionBubble] = useState(true);
   const [addedRecommendations, setAddedRecommendations] = useState([]);
   const buttonRef = useRef(null);
+  const errorId = useId();
+  const languageWarning = useMemo(() => containsAiProfanity(prompt) ? AI_LANGUAGE_WARNING : "", [prompt]);
+  const displayedError = languageWarning || error;
+  const closeChat = useCallback(() => {
+    setIsOpen(false);
+    setShowSuggestionBubble(true);
+  }, []);
 
   useEffect(() => {
-    if (isOpen) {
-      setShowSuggestionBubble(false);
-      return undefined;
-    }
-
-    setShowSuggestionBubble(true);
+    if (isOpen) return undefined;
     const bubbleTimer = window.setInterval(() => {
       setShowSuggestionBubble((current) => !current);
     }, 3000);
@@ -54,14 +57,15 @@ function CustomerAiAssistant({ menuItems = [], expiringIngredientContext = [], c
 
       const left = Math.max(margin, Math.min(cardRect.right - width - 4, window.innerWidth - width - margin));
       const top = Math.max(margin, Math.min(cardRect.top - height - 4, window.innerHeight - height - margin));
-      setButtonPosition((current) => current?.left === left && current?.top === top ? current : { left, top });
+      setButtonPosition((current) => current?.left === left && current?.top === top && current?.width === width && current?.height === height ? current : { left, top, width, height });
     }
 
-    repositionButton();
+    const frame = window.requestAnimationFrame(repositionButton);
     window.addEventListener("resize", repositionButton);
     window.addEventListener("scroll", repositionButton, true);
 
     return () => {
+      window.cancelAnimationFrame(frame);
       window.removeEventListener("resize", repositionButton);
       window.removeEventListener("scroll", repositionButton, true);
     };
@@ -71,12 +75,12 @@ function CustomerAiAssistant({ menuItems = [], expiringIngredientContext = [], c
     if (!isOpen) return undefined;
 
     function handleEscape(event) {
-      if (event.key === "Escape") setIsOpen(false);
+      if (event.key === "Escape") closeChat();
     }
 
     window.addEventListener("keydown", handleEscape);
     return () => window.removeEventListener("keydown", handleEscape);
-  }, [isOpen]);
+  }, [isOpen, closeChat]);
 
   async function handleSend(value = prompt) {
     if (isSending) return;
@@ -125,7 +129,7 @@ function CustomerAiAssistant({ menuItems = [], expiringIngredientContext = [], c
         type="button"
         className="ai-suggestion-button"
         style={buttonPosition ? { left: buttonPosition.left, top: buttonPosition.top, right: "auto", bottom: "auto" } : undefined}
-        onClick={() => setIsOpen(true)}
+        onClick={() => { setIsOpen(true); setShowSuggestionBubble(false); }}
         aria-label="Open AI menu assistant"
         title="Open AI menu assistant"
       >
@@ -139,8 +143,8 @@ function CustomerAiAssistant({ menuItems = [], expiringIngredientContext = [], c
             ? {
                 left: buttonPosition.left > window.innerWidth / 2
                   ? Math.max(8, buttonPosition.left - 190)
-                  : Math.min(window.innerWidth - 198, buttonPosition.left + (buttonRef.current?.offsetWidth || 72) + 12),
-                top: buttonPosition.top + ((buttonRef.current?.offsetHeight || 72) - 40) / 2,
+                  : Math.min(window.innerWidth - 198, buttonPosition.left + buttonPosition.width + 12),
+                top: buttonPosition.top + (buttonPosition.height - 40) / 2,
                 right: "auto",
                 bottom: "auto",
               }
@@ -153,9 +157,10 @@ function CustomerAiAssistant({ menuItems = [], expiringIngredientContext = [], c
       )}
 
       {isOpen && (
-        <div className="ai-chat-backdrop" role="presentation" onClick={() => setIsOpen(false)}>
+        <div className="ai-chat-backdrop" role="presentation" onClick={closeChat}>
           <section
             className="ai-chat-modal"
+            data-has-error={Boolean(displayedError)}
             role="dialog"
             aria-modal="true"
             aria-labelledby="ai-assistant-title"
@@ -169,7 +174,7 @@ function CustomerAiAssistant({ menuItems = [], expiringIngredientContext = [], c
                   <p>Suggestions use current menu availability</p>
                 </div>
               </div>
-              <button type="button" onClick={() => setIsOpen(false)} aria-label="Close AI assistant">×</button>
+              <button type="button" onClick={closeChat} aria-label="Close AI assistant">×</button>
             </header>
 
             <div className="ai-chat-body" aria-live="polite">
@@ -201,6 +206,7 @@ function CustomerAiAssistant({ menuItems = [], expiringIngredientContext = [], c
 
             <form
               className="ai-chat-form"
+              data-language-warning={Boolean(languageWarning)}
               onSubmit={(event) => {
                 event.preventDefault();
                 handleSend();
@@ -215,11 +221,13 @@ function CustomerAiAssistant({ menuItems = [], expiringIngredientContext = [], c
                 }}
                 placeholder="What are you in the mood for?"
                 aria-label="Ask the menu assistant"
+                aria-invalid={Boolean(displayedError)}
+                aria-describedby={displayedError ? errorId : undefined}
                 maxLength={300}
               />
-              <button type="submit" disabled={isSending}>{isSending ? "Thinking…" : "Send"}</button>
+              <button type="submit" disabled={isSending || Boolean(languageWarning)}>{isSending ? "Thinking…" : "Send"}</button>
             </form>
-            {error && <p className="ai-chat-error" role="alert">{error}</p>}
+            {displayedError && <p id={errorId} className="ai-chat-error" role="alert">{displayedError}</p>}
           </section>
         </div>
       )}

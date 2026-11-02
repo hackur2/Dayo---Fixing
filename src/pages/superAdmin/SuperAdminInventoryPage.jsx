@@ -1,24 +1,27 @@
 import AdminPageActions from "../../components/layout/AdminPageActions";
-import { useEffect, useMemo, useState } from "react";
-import { useSearchParams } from "react-router";
+import { useMemo, useState } from "react";
+import { useNavigate, useSearchParams } from "react-router";
 
 import AddInventoryItemModal from "../../components/superAdmin/inventory/AddInventoryItemModal";
 import EditIngredientModal from "../../components/superAdmin/inventory/EditIngredientModal";
 import EditMenuItemModal from "../../components/superAdmin/inventory/EditMenuItemModal";
 import IngredientSection from "../../components/superAdmin/inventory/IngredientSection";
 import InventorySummaryCards from "../../components/superAdmin/inventory/InventorySummaryCards";
-import InventoryViewToggle from "../../components/superAdmin/inventory/InventoryViewToggle";
+import InventoryInsights from "../../components/superAdmin/inventory/InventoryInsights";
 import MenuItemSection from "../../components/superAdmin/inventory/MenuItemSection";
 import { INVENTORY_STATUS_OPTIONS, INVENTORY_VIEWS } from "../../constants/inventory";
+import { SUPER_ADMIN_ROUTES } from "../../constants/routes";
 import { useInventoryData } from "../../hooks/useInventoryData";
+import { deleteInventoryRecords } from "../../utils/inventoryDeletionUtils";
+import { buildInventoryValuation } from "../../utils/inventoryValuationUtils";
 import {
-  getMenuItemAvailability,
   getStockStatus,
 } from "../../utils/inventoryUtils";
 
 import "../../styles/superAdminInventory.css";
 
 function SuperAdminInventoryPage() {
+  const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const requestedView = searchParams.get("view");
   const requestedStatus = searchParams.get("status");
@@ -47,24 +50,17 @@ function SuperAdminInventoryPage() {
     deleteMenuItem,
   } = useInventoryData();
 
-  const [activeView, setActiveView] = useState(initialView);
-
-  useEffect(() => {
-    setActiveView(initialView);
-  }, [initialView]);
+  const activeView = initialView;
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [editingIngredient, setEditingIngredient] = useState(null);
   const [editingMenuItem, setEditingMenuItem] = useState(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [bulkDeleteError, setBulkDeleteError] = useState("");
 
   const inventoryIngredients = ingredients;
   const inventoryMenuItems = menuItems;
 
   const summary = useMemo(() => {
-    const availableMenuItems = inventoryMenuItems.filter(
-      (item) =>
-        getMenuItemAvailability(item, inventoryIngredients) === "Available"
-    ).length;
-
     const lowStockIngredients = inventoryIngredients.filter(
       (item) => getStockStatus(item) === "Low Stock"
     ).length;
@@ -72,31 +68,46 @@ function SuperAdminInventoryPage() {
     return {
       ingredientCount: inventoryIngredients.length,
       menuItemCount: inventoryMenuItems.length,
-      availableMenuItems,
+      valuation: buildInventoryValuation(inventoryIngredients),
       lowStockIngredients,
     };
   }, [inventoryIngredients, inventoryMenuItems]);
 
   async function saveIngredientEdit(updatedIngredient) {
+    setBulkDeleteError("");
     await updateIngredient(updatedIngredient.id, updatedIngredient);
     setEditingIngredient(null);
   }
 
   async function saveMenuItemEdit(updatedMenuItem) {
+    setBulkDeleteError("");
     await updateMenuItem(updatedMenuItem.id, updatedMenuItem);
     setEditingMenuItem(null);
   }
 
-  async function confirmDeleteIngredient(ingredient) {
-    if (!window.confirm(`Delete ingredient “${ingredient.name}”? This cannot be undone. Ingredients with recipe or stock history cannot be deleted.`)) return;
-    try { await deleteIngredient(ingredient.id); }
-    catch (error) { console.error("Unable to delete ingredient:", error.message); }
-  }
+  async function confirmDeleteSelection(records, recordType, deleteRecord) {
+    if (records.length === 0 || isDeleting) return [];
+    const description = records.length === 1 ? `“${records[0].name}”` : `${records.length} selected ${recordType}`;
+    const details = recordType === "ingredients"
+      ? "The ingredient details will be kept in Archive. Ingredients with recipe or stock history cannot be archived."
+      : "The menu item details, variants, recipes, and past orders will be preserved. Archived items will leave the active menu.";
+    const confirmation = `Move ${description} to Archive? ${details}`;
+    if (!window.confirm(confirmation)) return [];
 
-  async function confirmDeleteMenuItem(menuItem) {
-    if (!window.confirm(`Permanently delete “${menuItem.name}” from Supabase? Past order details will remain, but its variants and recipe links will be deleted.`)) return;
-    try { await deleteMenuItem(menuItem.id); }
-    catch (error) { console.error("Unable to delete menu item:", error.message); }
+    setIsDeleting(true);
+    setBulkDeleteError("");
+    try {
+      const { deletedIds, errors } = await deleteInventoryRecords(records, deleteRecord);
+      if (errors.length > 0) {
+        setBulkDeleteError(errors.map(({ name, message }) => `${name}: ${message}`).join(" "));
+      } else if (deletedIds.length > 0) {
+        const view = recordType === "ingredients" ? INVENTORY_VIEWS.INGREDIENTS : INVENTORY_VIEWS.MENU_ITEMS;
+        navigate(`${SUPER_ADMIN_ROUTES.INVENTORY_ARCHIVE}?view=${view}`);
+      }
+      return deletedIds;
+    } finally {
+      setIsDeleting(false);
+    }
   }
 
   if (isInventoryLoading) {
@@ -126,7 +137,11 @@ function SuperAdminInventoryPage() {
           <button
             type="button"
             className="primary-button"
-            onClick={() => setIsAddModalOpen(true)}
+            disabled={isDeleting}
+            onClick={() => {
+              setBulkDeleteError("");
+              setIsAddModalOpen(true);
+            }}
           >
             Add Item
           </button>
@@ -139,25 +154,24 @@ function SuperAdminInventoryPage() {
         </section>
       )}
 
-      {inventoryActionError && (
-        <section className="inventory-message danger">
-          {inventoryActionError}
+      {(bulkDeleteError || inventoryActionError) && (
+        <section className="inventory-message danger" role="alert">
+          {bulkDeleteError || inventoryActionError}
         </section>
       )}
 
       <InventorySummaryCards summary={summary} />
 
-      <InventoryViewToggle
-        activeView={activeView}
-        onChange={setActiveView}
-      />
+      <InventoryInsights ingredients={inventoryIngredients} menuItems={inventoryMenuItems} />
 
       {activeView === INVENTORY_VIEWS.INGREDIENTS ? (
         <IngredientSection
+          key={initialIngredientStatus}
           initialStatusFilter={initialIngredientStatus}
           ingredients={inventoryIngredients}
           onEditIngredient={setEditingIngredient}
-          onDeleteIngredient={confirmDeleteIngredient}
+          onDeleteIngredients={(records) => confirmDeleteSelection(records, "ingredients", deleteIngredient)}
+          isDeleting={isDeleting}
         />
       ) : (
         <MenuItemSection
@@ -166,7 +180,8 @@ function SuperAdminInventoryPage() {
           mainCategories={mainCategories}
           subCategories={subCategories}
           onEditMenuItem={setEditingMenuItem}
-          onDeleteMenuItem={confirmDeleteMenuItem}
+          onDeleteMenuItems={(records) => confirmDeleteSelection(records, "menu items", deleteMenuItem)}
+          isDeleting={isDeleting}
         />
       )}
 

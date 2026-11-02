@@ -44,7 +44,7 @@ export const menuService = {
       if (!ingredient || Number(ingredient.current_stock) < Number(recipe.quantity)) continue;
       const expiry = new Date(`${ingredient.expires_on || ""}T00:00:00`);
       const daysUntilExpiry = Math.ceil((expiry - start) / 86400000);
-      if (!ingredient.expires_on || !Number.isFinite(expiry.getTime()) || daysUntilExpiry < 0 || daysUntilExpiry > 14) continue;
+      if (!ingredient.expires_on || !Number.isFinite(expiry.getTime()) || daysUntilExpiry <= 0 || daysUntilExpiry > 14) continue;
       const matches = expiringByMenuItem.get(String(recipe.menu_item_id)) || [];
       matches.push({ name: ingredient.name, daysUntilExpiry });
       expiringByMenuItem.set(String(recipe.menu_item_id), matches);

@@ -1,0 +1,28 @@
+.shelf-life-page-actions a { display: inline-flex; align-items: center; text-decoration: none; }
+.shelf-life-page-actions a:focus-visible,
+.shelf-life-page button:focus-visible { outline: 3px solid var(--color-primary); outline-offset: 3px; }
+.shelf-life-table-header { align-items: center; }
+.shelf-life-table-header > div { min-width: 0; }
+.shelf-life-table-header button { flex-shrink: 0; }
+.admin-page .shelf-life-order-note { margin-top: 5px; font-size: 12px; font-weight: 500; }
+.inventory-table-scroll .shelf-life-table { min-width: 760px; }
+.shelf-life-table td:first-child { width: 32%; overflow-wrap: anywhere; }
+.shelf-life-table th:not(:first-child),
+.shelf-life-table td:not(:first-child) { white-space: nowrap; }
+.shelf-life-table .shelf-life-row.active td { background: var(--color-warning-bg); border-top-color: #eadfae; }
+.shelf-life-table .shelf-life-row.expired td { background: #eee1df; border-top-color: #dfcecb; }
+.shelf-life-table .shelf-life-row.expired td,
+.shelf-life-table .shelf-life-row.expired strong { color: #785d59; }
+.shelf-life-status { display: inline-flex; padding: 6px 10px; border-radius: var(--radius-pill); font-size: 11px; font-weight: 800; }
+.shelf-life-status.fresh { background: #e9f1df; color: #42603b; }
+.shelf-life-status.expiring-soon { background: #f3df9d; color: #70520c; }
+.shelf-life-status.expired { background: #e2cdca; color: #7d4c46; }
+.shelf-life-status.not-set { background: #eae3d8; color: #625a50; }
+.shelf-life-table .shelf-life-empty { padding: 32px 20px; color: var(--color-muted); text-align: center; white-space: normal; }
+.shelf-life-error { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; margin-bottom: 18px; padding: 14px 16px; border-radius: var(--radius-md); background: #fceceb; color: #8b3434; }
+.admin-page .shelf-life-error p { color: inherit; font-size: 14px; }
+@media (max-width: 600px) {
+  .shelf-life-table-header { padding: 16px; gap: 10px; }
+  .shelf-life-table-header h2 { font-size: 18px; }
+  .shelf-life-table-header p { font-size: 12px; }
+}

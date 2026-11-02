@@ -46,7 +46,7 @@ function IngredientRequirementBuilder({
           <input
             type="number"
             min="0"
-            step="0.01"
+            step="0.001"
             value={requirement.quantity}
             onChange={(event) =>
               onChange(index, "quantity", event.target.value)

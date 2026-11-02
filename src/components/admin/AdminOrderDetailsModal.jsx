@@ -96,10 +96,6 @@ function AdminOrderDetailsModal({ order, onClose }) {
         </section>
 
         <div className="admin-order-modal-total">
-          <span>VAT</span>
-          <strong>₱0.00</strong>
-        </div>
-        <div className="admin-order-modal-total">
           <span>Total</span>
           <strong>₱{order.totalAmount.toFixed(2)}</strong>
         </div>

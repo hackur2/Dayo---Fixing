@@ -1,0 +1,6 @@
+.metric-percentage { display: flex; align-items: center; flex-wrap: wrap; gap: 7px; margin-top: 13px; }
+.metric-percentage b { display: inline-flex; padding: 4px 8px; background: #f2e8df; border-radius: 6px; color: #8b382a; font-size: 12px; line-height: 1.2; font-variant-numeric: tabular-nums; }
+.metric-percentage small { color: #736455; font-size: 11px; line-height: 1.35; }
+.featured .metric-percentage b { background: #ffffff26; color: #fff; }
+.featured .metric-percentage small { color: #fff1e9; }
+.warning .metric-percentage b { background: #e7b84530; color: #8c490c; }

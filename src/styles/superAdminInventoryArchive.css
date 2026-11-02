@@ -1,0 +1,14 @@
+.inventory-archive-actions a { display: inline-flex; align-items: center; text-decoration: none; }
+.inventory-archive-toolbar { display: flex; gap: 12px; margin-bottom: 18px; padding: 16px; border: 1px solid var(--color-border-light); border-radius: var(--radius-xl); background: var(--color-white); box-shadow: var(--shadow-card); }
+.inventory-archive-toolbar input { flex: 1; min-width: 0; min-height: 44px; padding: 10px 14px; border: 1px solid var(--color-border); border-radius: var(--radius-md); background: var(--color-soft-bg); color: var(--color-text); font-size: 14px; }
+.inventory-archive-page :is(a, input, button):focus-visible { outline: 3px solid var(--color-primary); outline-offset: 3px; }
+.admin-page .inventory-archive-caption { margin-top: 5px; font-size: 12px; font-weight: 500; }
+.inventory-table-scroll .ingredient-archive-table { min-width: 920px; }
+.ingredient-archive-table td:first-child { min-width: 170px; overflow-wrap: anywhere; }
+.ingredient-archive-table td:nth-child(n+3) { white-space: nowrap; }
+.inventory-archive-page .inventory-archive-empty { padding: 32px 20px; text-align: center; color: var(--color-muted); white-space: normal; }
+.inventory-table-scroll .menu-archive-table { min-width: 560px; }
+.inventory-archive-error { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 18px; padding: 14px 16px; border-radius: var(--radius-md); background: #fceceb; color: #8b3434; }
+.admin-page .inventory-archive-error p { font-size: 14px; color: inherit; }
+.archive-reason { display: inline-block; padding: 6px 9px; border-radius: var(--radius-pill); font-size: 11px; background: var(--color-soft-bg); }
+.archive-reason.expired { background: #eee1df; color: #785d59; }

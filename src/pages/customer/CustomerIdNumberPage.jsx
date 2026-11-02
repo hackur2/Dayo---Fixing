@@ -95,10 +95,6 @@ function CustomerIdNumberPage({ currentOrder, onStartNewOrder }) {
         </section>
 
         <section className="order-id-total-card">
-          <span>VAT</span>
-          <strong>₱0.00</strong>
-        </section>
-        <section className="order-id-total-card">
           <span>Total Amount</span>
           <strong>₱{orderData.totalAmount.toFixed(2)}</strong>
         </section>

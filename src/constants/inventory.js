@@ -16,6 +16,8 @@ export const INGREDIENT_CATEGORY_OPTIONS = [
   "Packaging",
 ];
 
+export const INGREDIENT_UNIT_OPTIONS = ["Pcs", "Grams", "mL"];
+
 export const INVENTORY_STATUS_OPTIONS = [
   "All",
   "In Stock",

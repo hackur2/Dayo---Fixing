@@ -325,4 +325,16 @@
 /* Error message beneath the food suggestion prompt. */
 .ai-chat-error {
   margin: 0 16px 14px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: #fff1ee;
+  color: var(--color-primary);
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 1.5;
 }
+
+.ai-chat-form input[aria-invalid="true"] { border-color: var(--color-primary); }
+.ai-chat-form[data-language-warning="true"] button:disabled { cursor: not-allowed; }
+.ai-chat-modal[data-has-error="true"] .ai-chat-body { min-height: 0; flex: 1 1 260px; }
+.ai-chat-modal[data-has-error="true"] :is(.ai-chat-header, .ai-chat-prompts, .ai-chat-form, .ai-chat-error) { flex-shrink: 0; }

@@ -215,10 +215,6 @@ function CustomerCheckoutPage({
             </div>
 
             <div className="checkout-total-row">
-              <span>VAT</span>
-              <strong>₱0.00</strong>
-            </div>
-            <div className="checkout-total-row">
               <span>Total Amount</span>
               <strong>₱{cartTotal.toFixed(2)}</strong>
             </div>

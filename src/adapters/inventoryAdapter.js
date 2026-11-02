@@ -1,3 +1,5 @@
+import { normalizeIngredientUnit, requireIngredientUnit } from "../utils/ingredientUnitUtils.js";
+
 function normalizeDateOnly(value) {
   if (!value) return "";
 
@@ -12,8 +14,10 @@ function getValue(object, camelCaseKey, snakeCaseKey, fallbackValue = "") {
 }
 
 export function normalizeIngredient(item) {
+  const unitCost = item.unitCost ?? item.unit_cost;
   return {
     id: item.id,
+    archivedAt: item.archived_at ?? null,
     name: item.name ?? "Unnamed Ingredient",
     category: item.category ?? "Food Ingredient",
     currentStock: Number(
@@ -22,7 +26,14 @@ export function normalizeIngredient(item) {
     reorderLevel: Number(
       item.reorderLevel ?? item.reorder_level ?? item.minimumStock ?? 0
     ),
-    unit: item.unit ?? item.unitOfMeasure ?? item.unit_of_measure ?? "pcs",
+    quantitySold30Days: Number(item.quantitySold30Days ?? item.quantity_sold_30_days ?? 0),
+    averageDailySales: Number(item.averageDailySales ?? item.average_daily_sales ?? 0),
+    safetyStock: Number(item.safetyStock ?? item.safety_stock ?? 0),
+    reorderPoint: Number(item.reorderPoint ?? item.reorder_point ?? item.reorderLevel ?? item.reorder_level ?? 0),
+    reorderPeriodStart: item.reorderPeriodStart ?? item.reorder_period_start ?? "",
+    reorderPeriodEnd: item.reorderPeriodEnd ?? item.reorder_period_end ?? "",
+    unit: normalizeIngredientUnit(item.unit ?? item.unitOfMeasure ?? item.unit_of_measure ?? "Pcs"),
+    unitCost: unitCost == null || unitCost === "" ? null : Number(unitCost),
     expiresOn: normalizeDateOnly(
       item.expiresOn ??
         item.expires_on ??
@@ -152,9 +163,10 @@ export function createIngredientPayload(ingredientForm) {
   return {
     name: ingredientForm.name.trim(),
     category: ingredientForm.category,
-    unit: ingredientForm.unit.trim(),
+    unit: requireIngredientUnit(ingredientForm.unit),
     currentStock: Number(ingredientForm.currentStock),
-    reorderLevel: Number(ingredientForm.reorderLevel),
+    reorderLevel: 0,
+    unitCost: ingredientForm.unitCost === "" || ingredientForm.unitCost == null ? null : Number(ingredientForm.unitCost),
     expiresOn: ingredientForm.expiresOn || null,
   };
 }

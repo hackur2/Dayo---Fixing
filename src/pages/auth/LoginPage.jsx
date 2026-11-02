@@ -2,12 +2,13 @@ import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router";
 
 import FormErrorMessage from "../../components/common/FormErrorMessage";
+import { useAuthenticatedUser } from "../../hooks/useAuthenticatedUser";
 import { authenticateUser } from "../../services/authService";
 import {
   getRoleHomeRoute,
   getSafeRedirectPath,
 } from "../../utils/authRouteUtils";
-import { getStoredAuthUser, saveAuthUser } from "../../utils/authUtils";
+import { saveAuthUser } from "../../utils/authUtils";
 
 import "../../styles/login.css";
 
@@ -23,16 +24,15 @@ function LoginPage() {
   const [formData, setFormData] = useState(INITIAL_LOGIN_FORM);
   const [loginError, setLoginError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const { user: currentUser, isLoading: isAuthLoading } = useAuthenticatedUser();
 
   useEffect(() => {
-    const currentUser = getStoredAuthUser();
-
-    if (!currentUser) {
+    if (isAuthLoading || !currentUser) {
       return;
     }
 
     navigate(getRoleHomeRoute(currentUser.role), { replace: true });
-  }, [navigate]);
+  }, [currentUser, isAuthLoading, navigate]);
 
   function handleInputChange(event) {
     const { name, value } = event.target;
@@ -47,6 +47,7 @@ function LoginPage() {
 
   async function handleSubmit(event) {
     event.preventDefault();
+    if (isAuthLoading || isSubmitting) return;
 
     const email = formData.email.trim();
     const password = formData.password.trim();
@@ -131,9 +132,9 @@ function LoginPage() {
           <button
             type="submit"
             className="login-submit-button"
-            disabled={isSubmitting}
+            disabled={isSubmitting || isAuthLoading}
           >
-            {isSubmitting ? "Logging in..." : "Login"}
+            {isAuthLoading ? "Checking session..." : isSubmitting ? "Logging in..." : "Login"}
           </button>
         </form>
       </section>

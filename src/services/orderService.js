@@ -59,11 +59,16 @@ export const orderService = {
     return data;
   },
   async getOrders(filters = {}) {
-    let query = supabase.from("orders").select("*, order_items(*)").order("created_at", { ascending: false });
-    if (filters.status && filters.status !== "All") query = query.eq("status", filters.status);
-    const { data, error } = await query;
-    if (error) throw error;
-    return data.map(withItems);
+    const records = [];
+    for (let offset = 0; ; offset += 1000) {
+      let query = supabase.from("orders").select("*, order_items(*)").order("created_at", { ascending: false }).order("id", { ascending: false });
+      if (filters.status && filters.status !== "All") query = query.eq("status", filters.status);
+      const { data, error } = await query.range(offset, offset + 999);
+      if (error) throw error;
+      const page = data ?? [];
+      records.push(...page.map(withItems));
+      if (page.length < 1000) return records;
+    }
   },
   async getOrderByOrderNumber(orderNumber) {
     const session = getValidQrSession();

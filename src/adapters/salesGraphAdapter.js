@@ -7,6 +7,8 @@ export function normalizeSalesGraphItem(item) {
     totalOrders: Number(
       item.totalOrders ?? item.total_orders ?? item.orders ?? 0
     ),
+    itemQuantities: item.itemQuantities ?? {},
+    entitySales: item.entitySales ?? {},
   };
 }
 

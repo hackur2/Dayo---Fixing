@@ -28,7 +28,7 @@ function AdminPosCartPanel({
       <div className="admin-pos-cart-header">
         <div>
           <h2>Current Order</h2>
-          <p>Manual POS order</p>
+          <p>Order Taker</p>
         </div>
 
         {hasItems && (

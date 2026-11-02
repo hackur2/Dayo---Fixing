@@ -1,24 +1,23 @@
 import { useState } from "react";
-import { Link, NavLink, useLocation, useNavigate } from "react-router";
+import { Link, useLocation, useNavigate } from "react-router";
 
 import { AUTH_ROUTES, CUSTOMER_ROUTES } from "../../constants/routes";
 import { clearAuthUser } from "../../utils/authUtils";
+import { getCurrentNavigationLabel } from "../../utils/adminNavigationUtils";
 import { supabase } from "../../lib/supabase";
 import { AdminShellContext } from "./AdminShellContext";
+import AdminSidebarNavigation from "./AdminSidebarNavigation";
 import RestockNotifications from "./RestockNotifications";
 
-function AdminShell({ roleName, navLinks, children }) {
+function AdminShell({ roleName, navLinks, pageTitle, children }) {
   const navigate = useNavigate();
   const location = useLocation();
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [headerActionsTarget, setHeaderActionsTarget] = useState(null);
 
   const currentPageName =
-    navLinks.find(
-      (link) =>
-        location.pathname === link.path ||
-        location.pathname.startsWith(`${link.path}/`)
-    )?.label || roleName;
+    pageTitle ||
+    getCurrentNavigationLabel(navLinks, location) || roleName;
 
   async function handleLogout() {
     try {
@@ -52,19 +51,7 @@ function AdminShell({ roleName, navLinks, children }) {
           </div>
 
 
-          <nav className="admin-sidebar-nav" aria-label={`${roleName} navigation`}>
-            {navLinks.map((link) => (
-              <NavLink
-                key={link.path}
-                to={link.path}
-                className={({ isActive }) =>
-                  isActive ? "admin-nav-link active" : "admin-nav-link"
-                }
-              >
-                {link.label}
-              </NavLink>
-            ))}
-          </nav>
+          <AdminSidebarNavigation navLinks={navLinks} roleName={roleName} />
 
           <div className="admin-sidebar-footer">
             <Link className="admin-sidebar-footer-link" to={CUSTOMER_ROUTES.MENU}>

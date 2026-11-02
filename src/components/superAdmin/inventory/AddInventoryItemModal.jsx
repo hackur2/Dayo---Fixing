@@ -1,6 +1,7 @@
 import { useState } from "react";
 
 import { ADD_TYPES } from "../../../constants/inventory";
+import { isIngredientUnit } from "../../../utils/ingredientUnitUtils";
 import AddAlaCarteFields from "./add/AddAlaCarteFields";
 import AddComboFields from "./add/AddComboFields";
 import AddIngredientFields from "./add/AddIngredientFields";
@@ -35,9 +36,9 @@ function AddInventoryItemModal({
   const [ingredientForm, setIngredientForm] = useState({
     name: "",
     category: "Food Ingredient",
-    unit: "pcs",
+    unit: "",
     currentStock: "",
-    reorderLevel: "",
+    unitCost: "",
     expirationInput: "",
     expiresOn: "",
   });
@@ -147,9 +148,8 @@ function AddInventoryItemModal({
 
         const isIncomplete =
           !ingredientForm.name.trim() ||
-          !ingredientForm.unit.trim() ||
+          !isIngredientUnit(ingredientForm.unit) ||
           ingredientForm.currentStock === "" ||
-          ingredientForm.reorderLevel === "" ||
           hasInvalidExpiration;
 
         if (isIncomplete) return;

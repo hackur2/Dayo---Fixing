@@ -1,3 +1,5 @@
+import { normalizeIngredientUnit } from "../utils/ingredientUnitUtils.js";
+
 function normalizeRevenueTrendItem(item) {
   return {
     date: item.date ?? item.salesDate ?? item.sales_date ?? "",
@@ -35,7 +37,7 @@ function normalizeLowStockItem(item) {
     reorderLevel: Number(
       item.reorderLevel ?? item.reorder_level ?? item.minimumStock ?? 0
     ),
-    unit: item.unit ?? "",
+    unit: normalizeIngredientUnit(item.unit),
   };
 }
 
@@ -55,6 +57,8 @@ function normalizeTopSellingItem(item) {
 
 export function normalizeDashboardSummary(data) {
   const rawData = data?.dashboard ?? data?.summary ?? data?.data ?? data ?? {};
+  const shelfLife = rawData.shelfLife ?? {};
+  const potentialExcess = rawData.potentialExcess ?? {};
 
   const revenueTrend =
     rawData.revenueTrend ??
@@ -88,8 +92,36 @@ export function normalizeDashboardSummary(data) {
     [];
 
   return {
+    asOfDate: rawData.asOfDate ?? "",
+    ingredientCount: Number(rawData.ingredientCount ?? 0),
+    potentialExcess: {
+      consumptionDays: Number(potentialExcess.consumptionDays ?? 7),
+      consumptionStartDate: potentialExcess.consumptionStartDate ?? "",
+      consumptionEndDate: potentialExcess.consumptionEndDate ?? "",
+      items: Array.isArray(potentialExcess.items) ? potentialExcess.items : [],
+    },
+    shelfLife: {
+      freshCount: Number(shelfLife.freshCount ?? 0),
+      expiringSoonCount: Number(shelfLife.expiringSoonCount ?? 0),
+      expiredCount: Number(shelfLife.expiredCount ?? 0),
+      undatedCount: Number(shelfLife.undatedCount ?? 0),
+      nearExpiry: Array.isArray(shelfLife.nearExpiry) ? shelfLife.nearExpiry.map((item) => ({
+        id: item.id, name: item.name ?? "Ingredient", expiresOn: item.expiresOn ?? "", daysUntilExpiry: Number(item.daysUntilExpiry ?? 0),
+      })) : [],
+    },
+    customerActivity: Array.isArray(rawData.customerActivity)
+      ? rawData.customerActivity.map((item) => ({ date: item.date ?? "", count: Number(item.count ?? 0) }))
+      : [],
     totalSales: Number(
       rawData.totalSales ?? rawData.total_sales ?? rawData.sales ?? 0
+    ),
+
+    totalOrders: Number(rawData.totalOrders ?? rawData.total_orders ?? 0),
+
+    todaySales: Number(rawData.todaySales ?? rawData.today_sales ?? 0),
+
+    activeStaffCount: Number(
+      rawData.activeStaffCount ?? rawData.active_staff_count ?? 0
     ),
 
     ordersToday: Number(

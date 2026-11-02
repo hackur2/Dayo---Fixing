@@ -61,10 +61,7 @@ function SuperAdminQrAccessPage() {
           onFocus={(event) => event.currentTarget.select()}
         />
         {statusMessage && <p className="super-admin-qr-status" role="status">{statusMessage}</p>}
-        <p className="super-admin-qr-note">
-          Use a public website address or a network-accessible address. A localhost
-          link only opens on the computer running the app.
-        </p>
+
       </section>
     </section>
   );

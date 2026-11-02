@@ -1,0 +1,29 @@
+.inventory-insights { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: stretch; gap: 16px; margin-bottom: 18px; }
+.inventory-insights > * { min-width: 0; }
+.inventory-insights .potential-excess-header { padding: 20px 24px 8px; }
+.inventory-insights .potential-excess-header h2 { font-size: 12px; }
+.inventory-insights .potential-excess-list { padding: 0 24px 8px; }
+.inventory-insights .potential-excess-list li { min-height: 62px; padding: 12px 0; }
+.inventory-insights .potential-excess-list strong { font-size: 13px; }
+.inventory-insights .potential-excess-list span { font-size: 11px; }
+.inventory-insights .potential-excess-list b { font-size: 15px; }
+.inventory-movement-card .sales-graph-card-header { padding: 14px 16px 8px; border-bottom: 0; gap: 10px; }
+.inventory-movement-card .sales-graph-card-header h2 { font-size: 14px; }
+.inventory-movement-card .sales-graph-card-header p { margin-top: 4px; font-size: 11px; }
+.inventory-movement-card .sales-graph-calendar-button { width: 34px; height: 34px; }
+.inventory-movement-card .sales-graph-calendar-button svg { width: 18px; height: 18px; }
+.inventory-movement-card .sales-movement-body { min-height: 200px; padding: 8px 12px 12px; gap: 8px; }
+.inventory-movement-card .sales-movement-legend span { font-size: 10px; }
+.inventory-insights .sales-graph-date-filter { grid-template-columns: repeat(2, minmax(0, 1fr)); padding: 12px; gap: 8px; }
+.inventory-insights .sales-graph-date-actions { grid-column: 1 / -1; justify-content: flex-end; }
+.inventory-insights .sales-graph-date-field { padding: 8px; }
+.inventory-insights .sales-graph-date-field input { font-size: 13px; }
+.inventory-insights .sales-analysis-error { margin: 0 12px; font-size: 12px; }
+@media (max-width: 760px) {
+  .inventory-insights { grid-template-columns: 1fr; }
+}
+@media (max-width: 480px) {
+  .inventory-insights .sales-graph-date-filter { grid-template-columns: 1fr; }
+  .inventory-insights .potential-excess-header { padding-left: 16px; padding-right: 16px; }
+  .inventory-insights .potential-excess-list { padding-left: 16px; padding-right: 16px; }
+}

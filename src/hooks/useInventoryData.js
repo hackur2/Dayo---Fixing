@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { inventoryService } from "../services/inventoryService";
+import { useInventoryRefreshVersion } from "./useInventoryRefreshVersion";
 import { createAlaCartePayload, createComboPayload, createIngredientPayload, createSubCategoryPayload,
   normalizeIngredient, normalizeIngredients, normalizeInventoryMenuItem, normalizeInventoryMenuItems,
   normalizeMainCategories, normalizeSubCategories } from "../adapters/inventoryAdapter";
@@ -12,24 +13,31 @@ export function useInventoryData() {
   const [isInventoryLoading, setIsInventoryLoading] = useState(true);
   const [inventoryError, setInventoryError] = useState("");
   const [inventoryActionError, setInventoryActionError] = useState("");
+  const [loadVersion, setLoadVersion] = useState(0);
+  const inventoryVersion = useInventoryRefreshVersion();
 
-  async function loadInventoryData() {
-    try {
-      setIsInventoryLoading(true); setInventoryError("");
-      const [ingredientsData, mainData, subData, menuData] = await Promise.all([
+  useEffect(() => {
+    let active = true;
+    Promise.all([
         inventoryService.getIngredients(), inventoryService.getMainCategories(),
         inventoryService.getSubCategories(), inventoryService.getMenuItems(),
-      ]);
+      ]).then(([ingredientsData, mainData, subData, menuData]) => {
+      if (!active) return;
+      setInventoryError("");
       setIngredients(normalizeIngredients(ingredientsData));
       setMainCategories(normalizeMainCategories(mainData));
       setSubCategories(normalizeSubCategories(subData));
       setMenuItems(normalizeInventoryMenuItems(menuData));
-    } catch (error) {
+    }).catch((error) => {
       console.error("Unable to load inventory:", error.message);
-      setInventoryError("Unable to load inventory from Supabase.");
-    } finally { setIsInventoryLoading(false); }
+      if (active) setInventoryError("Unable to load inventory from Supabase.");
+    }).finally(() => { if (active) setIsInventoryLoading(false); });
+    return () => { active = false; };
+  }, [loadVersion, inventoryVersion]);
+
+  function loadInventoryData() {
+    setIsInventoryLoading(true); setInventoryError(""); setLoadVersion((current) => current + 1);
   }
-  useEffect(() => { loadInventoryData(); }, []);
 
   async function runAction(action) {
     try { setInventoryActionError(""); return await action(); }
@@ -41,7 +49,7 @@ export function useInventoryData() {
   });
   const addIngredient = (form) => runAction(async () => {
     const row = normalizeIngredient(await inventoryService.createIngredient(createIngredientPayload(form)));
-    setIngredients((rows) => [...rows, row]); return row;
+    setIngredients((rows) => row.archivedAt ? rows : [...rows, row]); return row;
   });
   const addAlaCarteMenuItem = (form) => runAction(async () => {
     const row = normalizeInventoryMenuItem(await inventoryService.createMenuItem(createAlaCartePayload(form)));
@@ -57,7 +65,7 @@ export function useInventoryData() {
   });
   const updateIngredient = (id, payload) => runAction(async () => {
     const row = normalizeIngredient(await inventoryService.updateIngredient(id, payload));
-    setIngredients((rows) => rows.map((item) => item.id === id ? row : item)); return row;
+    setIngredients((rows) => row.archivedAt ? rows.filter((item) => item.id !== id) : rows.map((item) => item.id === id ? row : item)); return row;
   });
   const updateMenuItem = (id, payload) => runAction(async () => {
     const row = normalizeInventoryMenuItem(await inventoryService.updateMenuItem(id, payload));

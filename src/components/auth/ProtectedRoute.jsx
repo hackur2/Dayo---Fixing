@@ -2,11 +2,15 @@ import { Navigate, useLocation } from "react-router";
 
 import { AUTH_ROUTES } from "../../constants/routes";
 import { getRoleHomeRoute } from "../../utils/authRouteUtils";
-import { getStoredAuthUser } from "../../utils/authUtils";
+import { useAuthenticatedUser } from "../../hooks/useAuthenticatedUser";
 
 function ProtectedRoute({ allowedRoles, children }) {
   const location = useLocation();
-  const currentUser = getStoredAuthUser();
+  const { user: currentUser, isLoading } = useAuthenticatedUser();
+
+  if (isLoading) {
+    return <p role="status">Checking your session...</p>;
+  }
 
   if (!currentUser) {
     return (

@@ -1,0 +1,27 @@
+services:
+  dayo:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+      args:
+        VITE_SUPABASE_URL: ${VITE_SUPABASE_URL:?Set VITE_SUPABASE_URL in .env.docker}
+        VITE_SUPABASE_PUBLISHABLE_KEY: ${VITE_SUPABASE_PUBLISHABLE_KEY:?Set VITE_SUPABASE_PUBLISHABLE_KEY in .env.docker}
+        VITE_GEMINI_API_KEY: ${VITE_GEMINI_API_KEY:-}
+        VITE_GEMINI_MODEL: ${VITE_GEMINI_MODEL:-}
+    ports:
+      - "${DAYO_PORT:-8080}:80"
+    restart: unless-stopped
+
+  cloud-sync:
+    build:
+      context: ..
+      dockerfile: docker/sync.Dockerfile
+    environment:
+      LOCAL_DATABASE_URL: "${LOCAL_DATABASE_URL:-postgresql://postgres:postgres@host.docker.internal:54322/postgres}"
+      CLOUD_SUPABASE_URL: "${CLOUD_SUPABASE_URL:-}"
+      CLOUD_SUPABASE_SERVICE_ROLE_KEY: "${CLOUD_SUPABASE_SERVICE_ROLE_KEY:-}"
+      SYNC_INTERVAL_MS: "${SYNC_INTERVAL_MS:-300000}"
+      SYNC_POLL_MS: "${SYNC_POLL_MS:-2000}"
+      SYNC_REQUEST_TIMEOUT_MS: "${SYNC_REQUEST_TIMEOUT_MS:-180000}"
+    restart: unless-stopped
+    stop_grace_period: 30s

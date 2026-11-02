@@ -1,247 +1,88 @@
-
 import { useMemo, useState } from "react";
-import {
-  CartesianGrid,
-  Line,
-  LineChart,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis,
-  YAxis,
-} from "recharts";
-
+import { CartesianGrid, Legend, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { useSalesGraphData } from "../../hooks/useSalesGraphData";
-
+import SalesAnalysisPanels from "../../components/superAdmin/sales/SalesAnalysisPanels";
+import SalesDateRangeHeader from "../../components/superAdmin/sales/SalesDateRangeHeader";
+import MetricPercentage from "../../components/common/MetricPercentage";
+import { createSalesReportLoader } from "../../services/salesGraphService";
+import { buildSalesTrendSeries, summarizeSales } from "../../utils/salesAnalysisUtils";
 import "../../styles/superAdminSalesGraph.css";
 
-function formatPeso(amount) {
-  return `₱${Number(amount || 0).toLocaleString("en-PH", {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  })}`;
+const formatPeso = (value) => `₱${Number(value || 0).toLocaleString("en-PH", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+const formatNumber = (value) => Number(value || 0).toLocaleString("en-PH");
+const INTERVALS = [["hour", "Hour"], ["day", "Day"], ["week", "Week"], ["month", "Month"]];
+const ENTITY_MODES = [["main", "MAIN CATEGORY"], ["subcategory", "SUBCATEGORY"]];
+
+function CustomTooltip({ active, payload }) {
+  const point = payload?.[0]?.payload;
+  if (!active || !point) return null;
+  return <div className="sales-graph-tooltip sales-trend-tooltip"><strong>{point.label}</strong>{payload.map((entry) => <p key={entry.dataKey}><span className="sales-trend-tooltip-dot" style={{ background: entry.color }} aria-hidden="true" />{entry.name}: {formatPeso(entry.value)}</p>)}</div>;
 }
 
-function formatNumber(value) {
-  return Number(value || 0).toLocaleString("en-PH");
-}
-
-function isDateInsideRange(date, startDate, endDate) {
-  if (!date) {
-    return false;
-  }
-
-  if (startDate && date < startDate) {
-    return false;
-  }
-
-  if (endDate && date > endDate) {
-    return false;
-  }
-
-  return true;
-}
-
-function CustomTooltip({ active, payload, label }) {
-  if (!active || !payload || payload.length === 0) {
-    return null;
-  }
-
-  const salesData = payload.find((item) => item.dataKey === "totalSales");
-  const ordersData = payload.find((item) => item.dataKey === "totalOrders");
+export default function SuperAdminSalesGraphPage() {
+  const [dateRange, setDateRange] = useState({ startDate: "", endDate: "" });
+  const [interval, setInterval] = useState("day");
+  const [selectedEntityMode, setEntityMode] = useState("main");
+  const entityMode = selectedEntityMode === "subcategory" ? "subcategory" : "main";
+  const [loadReport] = useState(createSalesReportLoader);
+  const { salesReport, isSalesGraphLoading: isLoading, salesGraphError: error } = useSalesGraphData("", "", loadReport);
+  const summary = useMemo(() => summarizeSales(salesReport, dateRange), [salesReport, dateRange]);
+  const { data: trend, series } = useMemo(() => buildSalesTrendSeries(salesReport, interval, dateRange, entityMode), [salesReport, interval, dateRange, entityMode]);
+  const entityLabel = ENTITY_MODES.find(([value]) => value === entityMode)[1];
+  const unavailable = isLoading || Boolean(error);
+  const intervalDescription = interval === "hour" ? "Hour of day · Philippine time" : interval === "week" ? "Weeks start Monday" : interval === "month" ? "Calendar months" : "Daily totals";
 
   return (
-    <div className="sales-graph-tooltip">
-      <strong>{label}</strong>
-      <p>Sales: {formatPeso(salesData?.value || 0)}</p>
-      <p>Orders: {formatNumber(ordersData?.value || 0)}</p>
-    </div>
-  );
-}
-
-function SuperAdminSalesGraphPage() {
-  const [startDate, setStartDate] = useState("2026-03-20");
-  const [endDate, setEndDate] = useState("2026-03-27");
-
-  const { salesGraphData, isSalesGraphLoading, salesGraphError } =
-    useSalesGraphData(startDate, endDate);
-
-  const filteredSalesGraphData = useMemo(() => {
-    return salesGraphData.filter((item) =>
-      isDateInsideRange(item.date, startDate, endDate)
-    );
-  }, [salesGraphData, startDate, endDate]);
-
-  const salesSummary = useMemo(() => {
-    const totalSales = filteredSalesGraphData.reduce((total, item) => {
-      return total + item.totalSales;
-    }, 0);
-
-    const totalOrders = filteredSalesGraphData.reduce((total, item) => {
-      return total + item.totalOrders;
-    }, 0);
-
-    const averageDailySales =
-      filteredSalesGraphData.length > 0
-        ? totalSales / filteredSalesGraphData.length
-        : 0;
-
-    const highestSalesDay = filteredSalesGraphData.reduce(
-      (highestItem, currentItem) => {
-        if (!highestItem || currentItem.totalSales > highestItem.totalSales) {
-          return currentItem;
-        }
-
-        return highestItem;
-      },
-      null
-    );
-
-    return {
-      totalSales,
-      totalOrders,
-      averageDailySales,
-      highestSalesDay,
-    };
-  }, [filteredSalesGraphData]);
-
-  if (isSalesGraphLoading) {
-    return (
-      <section className="admin-page">
-        <div className="admin-page-heading">
-          <div>
-            <p className="admin-eyebrow"></p>
-            <h1>Sales Graph</h1>
-            <p>Loading sales graph data...</p>
-          </div>
-        </div>
-      </section>
-    );
-  }
-
-  return (
-    <section className="admin-page">
-      <div className="admin-page-heading">
-        <div>
-          <p className="admin-eyebrow"></p>
-          <h1>Sales Graph</h1>
-          <p>
-            
-          </p>
-        </div>
-      </div>
-
-      {salesGraphError && (
-        <section className="sales-graph-message warning">
-          {salesGraphError}
-        </section>
-      )}
-
-      <section className="sales-graph-filter-card">
-        <div className="sales-graph-filter-heading">
-          <span>Date Range</span>
-          <strong>Sales report period</strong>
-        </div>
-
-        <div className="sales-graph-date-fields">
-          <label className="sales-graph-date-field" htmlFor="sales-start-date">
-            <span>Start Date</span>
-            <input
-              id="sales-start-date"
-              type="date"
-              value={startDate}
-              onChange={(event) => setStartDate(event.target.value)}
-            />
-          </label>
-
-          <div className="sales-graph-date-arrow">→</div>
-
-          <label className="sales-graph-date-field" htmlFor="sales-end-date">
-            <span>End Date</span>
-            <input
-              id="sales-end-date"
-              type="date"
-              value={endDate}
-              onChange={(event) => setEndDate(event.target.value)}
-            />
-          </label>
-        </div>
-      </section>
-
-      <section className="sales-graph-summary-grid">
+    <section className="admin-page sales-graph-page" aria-busy={isLoading}>
+      <div className="admin-page-heading"><div><h1>Sales Graph</h1></div></div>
+      {error && <section className="sales-graph-message warning" role="alert">{error}</section>}
+      <section className="sales-graph-summary-grid" aria-label="Sales performance">
         <article className="sales-graph-summary-card featured">
-          <span>Total Sales</span>
-          <strong>{formatPeso(salesSummary.totalSales)}</strong>
-          <p></p>
+          <span>Total Sales</span><strong>{unavailable ? "—" : formatPeso(summary.totalSales)}</strong>
+          <MetricPercentage value={summary.salesShare} label="of all-time completed sales" unavailable={unavailable} />
         </article>
-
         <article className="sales-graph-summary-card">
-          <span>Total Orders</span>
-          <strong>{formatNumber(salesSummary.totalOrders)}</strong>
-          <p></p>
+          <span>Total Orders</span><strong>{unavailable ? "—" : formatNumber(summary.totalOrders)}</strong>
+          <MetricPercentage value={summary.ordersShare} label="of all-time completed orders" unavailable={unavailable} />
         </article>
-
         <article className="sales-graph-summary-card">
-          <span>Average Daily Sales</span>
-          <strong>{formatPeso(salesSummary.averageDailySales)}</strong>
-          <p></p>
+          <span>Average Daily Sales</span><strong>{unavailable ? "—" : formatPeso(summary.averageDailySales)}</strong>
+          <MetricPercentage value={summary.averageToPeak} label="of peak daily sales" unavailable={unavailable} />
         </article>
-
         <article className="sales-graph-summary-card warning">
-          <span>Highest Sales Day</span>
-          <strong>{salesSummary.highestSalesDay?.date || "—"}</strong>
-          <p>
-            {salesSummary.highestSalesDay
-              ? formatPeso(salesSummary.highestSalesDay.totalSales)
-              : "No sales data"}
-          </p>
+          <span>Highest Sales Day</span><strong>{unavailable ? "—" : summary.highestSalesDay?.key || "—"}</strong>
+          <p>{unavailable ? "—" : summary.highestSalesDay ? formatPeso(summary.highestSalesDay.totalSales) : "No sales data"}</p>
+          <MetricPercentage value={summary.peakShare} label="of selected-period revenue" unavailable={unavailable} />
         </article>
       </section>
-
-      <section className="sales-graph-card">
-        <div className="sales-graph-card-header">
-          <div>
-            <h2>Daily Sales Trend</h2>
-            <p>
-            </p>
+      <section className="sales-graph-card sales-trend-card" aria-labelledby="daily-sales-trend-title">
+        <SalesDateRangeHeader title="Sales Trend" titleId="daily-sales-trend-title" description={intervalDescription} range={dateRange} onApply={setDateRange} controls={<>
+          <div className="sales-trend-intervals" role="group" aria-label="Sales trend interval">
+            {INTERVALS.map(([value, label]) => <button type="button" key={value} aria-pressed={interval === value} onClick={() => setInterval(value)}>{label}</button>)}
           </div>
-        </div>
+          <select className="sales-trend-entity-select" aria-label="Sales trend entity" value={entityMode} onChange={(event) => setEntityMode(event.target.value)} disabled={unavailable}>
+            {ENTITY_MODES.map(([value, label]) => <option key={value} value={value}>{label}</option>)}
+          </select>
+        </>} />
+        {isLoading ? <div className="sales-graph-loading" role="status">Loading sales graph data...</div>
+          : error ? <p className="sales-chart-note">Sales data is unavailable.</p>
+          : summary.totalOrders > 0 && series.length > 0 ? <>
+            <div className="sales-graph-chart-wrapper" role="img" aria-label={`${INTERVALS.find(([value]) => value === interval)[1]} sales trend · ${entityLabel}: ${series.map((entity) => entity.name).join(", ")}. Sales in pesos.`}>
+              <ResponsiveContainer width="100%" height={340}>
+                <LineChart data={trend} margin={{ top: 10, right: 8, left: 8, bottom: 10 }}>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                  <XAxis dataKey="label" minTickGap={28} tick={{ fontSize: 11 }} tickFormatter={(label) => interval === "week" ? label.replace("Week of ", "") : label} />
+                  <YAxis tick={{ fontSize: 11 }} tickFormatter={(value) => `₱${formatNumber(value)}`} width={70} />
+                  <Tooltip content={<CustomTooltip />} wrapperStyle={{ pointerEvents: "auto" }} />
+                  <Legend height={72} wrapperStyle={{ fontSize: 12, maxHeight: 72, overflowY: "auto" }} />
+                  {series.map((entity, index) => <Line key={entity.id} type="linear" dataKey={entity.key} name={entity.name} stroke={`hsl(${index * 137.508 % 360} 55% 42%)`} strokeWidth={2} dot={trend.length < 40} />)}
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
 
-        {filteredSalesGraphData.length > 0 ? (
-          <div className="sales-graph-chart-wrapper">
-            <ResponsiveContainer width="100%" height={380}>
-              <LineChart data={filteredSalesGraphData}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="date" />
-                <YAxis />
-                <Tooltip content={<CustomTooltip />} />
-
-                <Line
-                  type="linear"
-                  dataKey="totalSales"
-                  name="Total Sales"
-                  strokeWidth={3}
-                  dot
-                />
-
-                <Line
-                  type="linear"
-                  dataKey="totalOrders"
-                  name="Total Orders"
-                  strokeWidth={3}
-                  dot
-                />
-              </LineChart>
-            </ResponsiveContainer>
-          </div>
-        ) : (
-          <section className="admin-empty-state">
-            <h2>No sales data found</h2>
-            <p>Try selecting another start date or end date.</p>
-          </section>
-        )}
+          </> : <section className="admin-empty-state"><h2>{summary.totalOrders > 0 ? "No entities in this group" : "No sales data found"}</h2><p>{summary.totalOrders > 0 ? "Try another entity group." : "Try selecting another date range."}</p></section>}
       </section>
+      <SalesAnalysisPanels loadReport={loadReport} />
     </section>
   );
 }
-
-export default SuperAdminSalesGraphPage;

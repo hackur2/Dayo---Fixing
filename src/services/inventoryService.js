@@ -1,11 +1,32 @@
 import { supabase } from "../lib/supabase";
+import { ingredientArchiveService } from "./ingredientArchiveService";
+import { menuArchiveService } from "./menuArchiveService";
+import { synchronizeIngredientExpiry } from "./ingredientExpiryService";
+import { getIngredientSales30Days } from "./ingredientReorderService";
+import { applyIngredientReorderPoints, calculateIngredientReorderPoint } from "../utils/ingredientReorderUtils";
+import { assertIngredientUnitChange, isIngredientUnit, normalizeIngredientUnit, requireIngredientUnit } from "../utils/ingredientUnitUtils";
 
 function throwIfError(error) { if (error) throw error; }
+function throwIfIngredientError(error) {
+  if (error?.code === "PGRST204" && error.message?.includes("unit_cost")) {
+    throw new Error("Unit Cost needs database setup. Run ingredient_unit_cost_setup.sql in Supabase SQL Editor, then try again.");
+  }
+  throwIfError(error);
+}
 
 export const inventoryService = {
   async getIngredients() {
-    const { data, error } = await supabase.from("ingredients").select("*").order("name");
-    throwIfError(error); return data;
+    await synchronizeIngredientExpiry(supabase);
+    const now = new Date();
+    const sales = await getIngredientSales30Days(supabase, now);
+    const records = [];
+    for (let offset = 0; ; offset += 1000) {
+      const { data, error } = await supabase.from("ingredients").select("*").order("name").order("id").range(offset, offset + 999);
+      throwIfError(error);
+      const page = data ?? [];
+      records.push(...page.filter((row) => !row.archived_at));
+      if (page.length < 1000) return applyIngredientReorderPoints(records, sales, now);
+    }
   },
   async getMainCategories() {
     const { data, error } = await supabase.from("menu_categories").select("id,name,description").is("parent_id", null).eq("is_active", true).order("sort_order");
@@ -16,20 +37,18 @@ export const inventoryService = {
     throwIfError(error); return data.map((row) => ({ id: row.id, name: row.name, mainCategoryId: row.parent_id }));
   },
   async getMenuItems() {
-    // Include archived rows so Admin can permanently delete old catalog entries.
-    const { data, error } = await supabase.from("menu_items").select("*, menu_item_ingredients(ingredient_id,quantity), menu_item_variants(id,variant_key,name,price,sort_order)").order("name");
-    throwIfError(error);
-    return data.map((row) => ({ ...row, mainCategoryId: row.category_id, subCategoryId: row.subcategory_id,
-      type: row.item_type, imageUrl: row.image_url, ingredientRequirements: row.menu_item_ingredients.map((x) => ({ ingredientId: x.ingredient_id, quantity: x.quantity })), variants: row.menu_item_variants || [] }));
+    return menuArchiveService.getActiveMenuItems();
   },
   async createSubCategory(payload) {
     const { data, error } = await supabase.from("menu_categories").insert({ parent_id: payload.mainCategoryId, name: payload.name }).select("id,name,parent_id").single();
     throwIfError(error); return { id: data.id, name: data.name, mainCategoryId: data.parent_id };
   },
   async createIngredient(payload) {
+    const unit = requireIngredientUnit(payload.unit);
     const { data, error } = await supabase.from("ingredients").insert({ name: payload.name, category: payload.category,
-      unit: payload.unit, current_stock: payload.currentStock, reorder_level: payload.reorderLevel, expires_on: payload.expiresOn }).select("*").single();
-    throwIfError(error); return data;
+      unit, current_stock: payload.currentStock, reorder_level: 0, expires_on: payload.expiresOn,
+      ...(payload.unitCost !== undefined ? { unit_cost: payload.unitCost } : {}) }).select("*").single();
+    throwIfIngredientError(error); return applyIngredientReorderPoints([data], new Map())[0];
   },
   async createMenuItem(payload) {
     const { data: row, error } = await supabase.from("menu_items").insert({ name: payload.name, item_type: "Ala Carte",
@@ -81,20 +100,40 @@ export const inventoryService = {
     const { data, error } = await supabase.from("ingredients").update({ current_stock: nextStock }).eq("id", ingredientId).select("*").single();
     throwIfError(error);
     const { error: movementError } = await supabase.from("stock_movements").insert({ ingredient_id: ingredientId, adjustment: adjustmentAmount, reason: "Manual stock adjustment" });
-    throwIfError(movementError); return data;
+    throwIfError(movementError);
+    const now = new Date();
+    return applyIngredientReorderPoints([data], await getIngredientSales30Days(supabase, now), now)[0];
   },
   async updateIngredient(id, payload) {
-    const { data: current, error: readError } = await supabase.from("ingredients").select("current_stock").eq("id", id).single();
+    const unit = requireIngredientUnit(payload.unit);
+    const now = new Date();
+    const sales = await getIngredientSales30Days(supabase, now);
+    const { reorderLevel } = calculateIngredientReorderPoint(sales.get(String(id)) ?? 0);
+    const { data: current, error: readError } = await supabase.from("ingredients").select("current_stock,unit,reorder_level,unit_cost").eq("id", id).single();
     throwIfError(readError);
+    // Existing ledger and recipe amounts have no separate unit column. A label
+    // change alone would reinterpret every historical quantity.
+    if (normalizeIngredientUnit(current.unit) !== unit) {
+      const [recipes, movements] = await Promise.all([
+        supabase.from("menu_item_ingredients").select("ingredient_id").eq("ingredient_id", id).limit(1),
+        supabase.from("stock_movements").select("id").eq("ingredient_id", id).limit(1),
+      ]);
+      throwIfError(recipes.error); throwIfError(movements.error);
+      const canChange = isIngredientUnit(normalizeIngredientUnit(current.unit))
+        && Number(current.current_stock) === 0 && Number(current.reorder_level) === 0
+        && Number(current.unit_cost ?? 0) === 0 && !recipes.data?.length && !movements.data?.length;
+      assertIngredientUnitChange(current.unit, unit, canChange);
+    }
     const { data, error } = await supabase.from("ingredients").update({ name: payload.name, category: payload.category,
-      unit: payload.unit, current_stock: payload.currentStock, reorder_level: payload.reorderLevel, expires_on: payload.expiresOn || null }).eq("id", id).select("*").single();
-    throwIfError(error);
+      unit, current_stock: payload.currentStock, reorder_level: reorderLevel, expires_on: payload.expiresOn || null,
+      ...(payload.unitCost !== undefined ? { unit_cost: payload.unitCost } : {}) }).eq("id", id).select("*").single();
+    throwIfIngredientError(error);
     const delta = Number(payload.currentStock) - Number(current.current_stock);
     if (delta) {
       const { error: movementError } = await supabase.from("stock_movements").insert({ ingredient_id: id, adjustment: delta, reason: "Inventory record edit" });
       throwIfError(movementError);
     }
-    return data;
+    return applyIngredientReorderPoints([data], sales, now)[0];
   },
   async updateMenuItem(id, payload) {
     const { data, error } = await supabase.from("menu_items").update({ name: payload.name, category_id: payload.mainCategoryId,
@@ -159,34 +198,9 @@ export const inventoryService = {
       imageUrl: data.image_url, ingredientRequirements: payload.ingredientRequirements || [], variants: savedVariants };
   },
   async deleteMenuItem(id) {
-    const { data: comboReferences, error: referenceError } = await supabase
-      .from("combo_components")
-      .select("combo_menu_item_id")
-      .eq("component_menu_item_id", id)
-      .limit(1);
-    throwIfError(referenceError);
-    if (comboReferences?.length) {
-      throw new Error("This menu item is used in a combo. Remove that combo first, then delete this item.");
-    }
-
-    // This is a permanent delete. Order item snapshots remain because their
-    // foreign key is ON DELETE SET NULL; recipe/variant links cascade away.
-    const { data, error } = await supabase.from("menu_items").delete().eq("id", id).select("id");
-    throwIfError(error);
-    if (!data?.length) throw new Error("Menu item was not deleted. Check your account permissions and try again.");
+    await menuArchiveService.archiveMenuItem(id);
   },
   async deleteIngredient(id) {
-    const [{ data: recipes, error: recipeError }, { data: movements, error: movementError }] = await Promise.all([
-      supabase.from("menu_item_ingredients").select("menu_item_id").eq("ingredient_id", id).limit(1),
-      supabase.from("stock_movements").select("id").eq("ingredient_id", id).limit(1),
-    ]);
-    throwIfError(recipeError);
-    throwIfError(movementError);
-    if (recipes?.length) throw new Error("This ingredient is used in a menu recipe. Remove it from the recipe before deleting it.");
-    if (movements?.length) throw new Error("This ingredient has stock movement history and cannot be deleted.");
-
-    const { data, error } = await supabase.from("ingredients").delete().eq("id", id).select("id");
-    throwIfError(error);
-    if (!data?.length) throw new Error("Ingredient was not deleted. Check your account permissions and try again.");
+    await ingredientArchiveService.deleteIngredient(id);
   },
 };

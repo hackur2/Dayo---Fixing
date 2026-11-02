@@ -113,11 +113,6 @@ function CustomerCartPage({
         </div>
 
         <div className="bag-summary-row">
-          <span>VAT</span>
-          <strong>₱0.00</strong>
-        </div>
-
-        <div className="bag-summary-row">
           <span>Total Amount</span>
           <strong>₱{totalAmount.toFixed(2)}</strong>
         </div>

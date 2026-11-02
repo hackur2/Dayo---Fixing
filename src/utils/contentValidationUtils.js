@@ -1,4 +1,5 @@
 /** Shared, lightweight UI validation. Not a substitute for backend moderation. */
+import { AI_LANGUAGE_WARNING, containsAiProfanity } from "./aiLanguageUtils.js";
 const BLOCKED_WORDS = new Set([
   "fuck", "fucking", "fucked", "fucker", "motherfucker",
   "shit", "bullshit", "bitch", "asshole",
@@ -26,7 +27,7 @@ export function getCustomerNameError(value, { required = true } = {}) {
   if (name.length < 2 || name.length > 80) {
     return "Customer name must be 2–80 characters long.";
   }
-  if (!/^[\p{L}\p{M}][\p{L}\p{M} .'’\-]*$/u.test(name)) {
+  if (!/^[\p{L}\p{M}][\p{L}\p{M} .'’-]*$/u.test(name)) {
     return "Use letters, spaces, apostrophes, periods, or hyphens for the name.";
   }
   if (containsInappropriateLanguage(name)) {
@@ -59,8 +60,8 @@ export function getAiPromptError(value) {
   const message = String(value ?? "").trim();
   if (!message) return "Please enter a food or drink preference.";
   if (message.length > 300) return "Please keep your request under 300 characters.";
-  if (containsInappropriateLanguage(message)) {
-    return "Please use appropriate language when requesting suggestions.";
+  if (containsAiProfanity(message)) {
+    return AI_LANGUAGE_WARNING;
   }
   return "";
 }

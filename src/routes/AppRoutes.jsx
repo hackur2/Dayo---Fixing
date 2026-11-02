@@ -47,8 +47,14 @@ const AdminKdsPage = lazy(() => import("../pages/admin/AdminKdsPage"));
 const AdminPosPage = lazy(() => import("../pages/admin/AdminPosPage"));
 const AdminOrderSummaryPage = lazy(() => import("../pages/admin/AdminOrderSummaryPage"));
 const SuperAdminDashboardPage = lazy(() => import("../pages/superAdmin/SuperAdminDashboardPage"));
+const SuperAdminLowStockPage = lazy(() => import("../pages/superAdmin/SuperAdminLowStockPage"));
+const SuperAdminShelfLifePage = lazy(() => import("../pages/superAdmin/SuperAdminShelfLifePage"));
 const SuperAdminSalesGraphPage = lazy(() => import("../pages/superAdmin/SuperAdminSalesGraphPage"));
 const SuperAdminInventoryPage = lazy(() => import("../pages/superAdmin/SuperAdminInventoryPage"));
+const SuperAdminInventoryArchivePage = lazy(() => import("../pages/superAdmin/SuperAdminInventoryArchivePage"));
+const SuperAdminPotentialExcessPage = lazy(() => import("../pages/superAdmin/SuperAdminPotentialExcessPage"));
+const SuperAdminItemMovementPage = lazy(() => import("../pages/superAdmin/SuperAdminItemMovementPage"));
+const SuperAdminSupplierPage = lazy(() => import("../pages/superAdmin/SuperAdminSupplierPage"));
 const SuperAdminOrdersPage = lazy(() => import("../pages/superAdmin/SuperAdminOrdersPage"));
 const SuperAdminStaffShiftsPage = lazy(() => import("../pages/superAdmin/SuperAdminStaffShiftsPage"));
 const SuperAdminFeedbackPage = lazy(() => import("../pages/superAdmin/SuperAdminFeedbackPage"));
@@ -308,6 +314,11 @@ function AppRoutes() {
 
       {/* ADMIN ROUTES - PROTECTED WITH ADMIN SIDEBAR */}
       <Route
+        path="/admin/pos"
+        element={<Navigate to={ADMIN_ROUTES.ORDER_TAKER} replace />}
+      />
+
+      <Route
         path={ADMIN_ROUTES.KDS}
         element={
           <ProtectedRoute allowedRoles={ADMIN_ALLOWED_ROLES}>
@@ -319,7 +330,7 @@ function AppRoutes() {
       />
 
       <Route
-        path={ADMIN_ROUTES.POS}
+        path={ADMIN_ROUTES.ORDER_TAKER}
         element={
           <ProtectedRoute allowedRoles={ADMIN_ALLOWED_ROLES}>
             <AdminShell roleName="Admin" navLinks={ADMIN_NAV_LINKS}>
@@ -341,6 +352,11 @@ function AppRoutes() {
       />
 
       {/* SUPER ADMIN ROUTES - PROTECTED WITH SUPER ADMIN SIDEBAR */}
+      <Route
+        path="/super-admin/pos"
+        element={<Navigate to={SUPER_ADMIN_ROUTES.ORDER_TAKER} replace />}
+      />
+
       <Route
         path={SUPER_ADMIN_ROUTES.KDS}
         element={
@@ -370,6 +386,38 @@ function AppRoutes() {
       />
 
       <Route
+        path="/super-admin/dashboard/low-stock"
+        element={<Navigate to={SUPER_ADMIN_ROUTES.LOW_STOCK} replace />}
+      />
+
+      <Route
+        path={SUPER_ADMIN_ROUTES.LOW_STOCK}
+        element={
+          <ProtectedRoute allowedRoles={SUPER_ADMIN_ALLOWED_ROLES}>
+            <AdminShell roleName="Super Admin" navLinks={SUPER_ADMIN_NAV_LINKS} pageTitle="Low Stock">
+              <SuperAdminLowStockPage />
+            </AdminShell>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/super-admin/dashboard/shelf-life"
+        element={<Navigate to={SUPER_ADMIN_ROUTES.SHELF_LIFE} replace />}
+      />
+
+      <Route
+        path={SUPER_ADMIN_ROUTES.SHELF_LIFE}
+        element={
+          <ProtectedRoute allowedRoles={SUPER_ADMIN_ALLOWED_ROLES}>
+            <AdminShell roleName="Super Admin" navLinks={SUPER_ADMIN_NAV_LINKS} pageTitle="Shelf Life Monitoring">
+              <SuperAdminShelfLifePage />
+            </AdminShell>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
         path={SUPER_ADMIN_ROUTES.SALES_GRAPH}
         element={
           <ProtectedRoute allowedRoles={SUPER_ADMIN_ALLOWED_ROLES}>
@@ -385,7 +433,7 @@ function AppRoutes() {
 
 
       <Route
-        path={SUPER_ADMIN_ROUTES.POS}
+        path={SUPER_ADMIN_ROUTES.ORDER_TAKER}
         element={
           <ProtectedRoute allowedRoles={SUPER_ADMIN_ALLOWED_ROLES}>
             <AdminShell
@@ -393,6 +441,17 @@ function AppRoutes() {
               navLinks={SUPER_ADMIN_NAV_LINKS}
             >
               <AdminPosPage panelLabel="" />
+            </AdminShell>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path={SUPER_ADMIN_ROUTES.INVENTORY_ARCHIVE}
+        element={
+          <ProtectedRoute allowedRoles={SUPER_ADMIN_ALLOWED_ROLES}>
+            <AdminShell roleName="Super Admin" navLinks={SUPER_ADMIN_NAV_LINKS} pageTitle="Archive">
+              <SuperAdminInventoryArchivePage />
             </AdminShell>
           </ProtectedRoute>
         }
@@ -407,6 +466,43 @@ function AppRoutes() {
               navLinks={SUPER_ADMIN_NAV_LINKS}
             >
               <SuperAdminInventoryPage />
+            </AdminShell>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path={SUPER_ADMIN_ROUTES.ITEM_MOVEMENT}
+        element={
+          <ProtectedRoute allowedRoles={SUPER_ADMIN_ALLOWED_ROLES}>
+            <AdminShell roleName="Super Admin" navLinks={SUPER_ADMIN_NAV_LINKS} pageTitle="Item Movement">
+              <SuperAdminItemMovementPage />
+            </AdminShell>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path={SUPER_ADMIN_ROUTES.POTENTIAL_EXCESS}
+        element={
+          <ProtectedRoute allowedRoles={SUPER_ADMIN_ALLOWED_ROLES}>
+            <AdminShell roleName="Super Admin" navLinks={SUPER_ADMIN_NAV_LINKS} pageTitle="Potential Excess">
+              <SuperAdminPotentialExcessPage />
+            </AdminShell>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path={SUPER_ADMIN_ROUTES.SUPPLIER}
+        element={
+          <ProtectedRoute allowedRoles={SUPER_ADMIN_ALLOWED_ROLES}>
+            <AdminShell
+              roleName="Super Admin"
+              navLinks={SUPER_ADMIN_NAV_LINKS}
+              pageTitle="Supplier"
+            >
+              <SuperAdminSupplierPage />
             </AdminShell>
           </ProtectedRoute>
         }

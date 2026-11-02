@@ -126,10 +126,6 @@ function CustomerOrderStatusPage({
             <strong>{orderData.orderType}</strong>
           </div>
           <div>
-            <span>VAT</span>
-            <strong>₱0.00</strong>
-          </div>
-          <div>
             <span>Total Amount</span>
             <strong>₱{orderData.totalAmount.toFixed(2)}</strong>
           </div>

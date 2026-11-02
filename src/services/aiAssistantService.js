@@ -1,3 +1,5 @@
+import { getAiPromptError } from "../utils/contentValidationUtils";
+
 const API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
 const MODEL = import.meta.env.VITE_GEMINI_MODEL || "gemini-3.5-flash-lite";
 const FALLBACK_MODEL = MODEL === "gemini-3.5-flash-lite"
@@ -38,6 +40,8 @@ async function requestGemini(model, contents, systemText = "You are a friendly f
 }
 
 export async function askMenuAssistant({ prompt, history, menuItems, expiringIngredientContext = [] }) {
+  const validationError = getAiPromptError(prompt);
+  if (validationError) throw new Error(validationError);
   if (!API_KEY) throw new Error("Add VITE_GEMINI_API_KEY to .env.local, then restart the app.");
 
   const availableItems = menuItems.filter(
