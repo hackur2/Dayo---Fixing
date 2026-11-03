@@ -41,8 +41,12 @@ function SuperAdminDashboardPage() {
           <h1>Dashboard</h1>
         </div>
         <div className="dashboard-operations-controls">
-          <CloudSyncControl />
-          {isLocalDeployment && <OnlineOrderingControl />}
+          {isLocalDeployment && (
+            <>
+              <CloudSyncControl />
+              <OnlineOrderingControl />
+            </>
+          )}
         </div>
       </div>
 
