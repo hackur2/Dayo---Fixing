@@ -11,7 +11,7 @@ const STARTER_MESSAGE = {
   role: "ai",
   text: "Hi! I can help you find something from the menu. Suggestions use current item availability.",
 };
-function CustomerAiAssistant({ menuItems = [], expiringIngredientContext = [], cartItems = [], onAddToCart, itemDetailsOpen = false }) {
+function CustomerAiAssistant({ menuItems = [], expiringIngredientContext = [], cartItems = [], onAddToCart, itemDetailsOpen = false, orderingUnavailable = false }) {
   const [isOpen, setIsOpen] = useState(false);
   const [prompt, setPrompt] = useState("");
   const [messages, setMessages] = useState([STARTER_MESSAGE]);
@@ -187,6 +187,7 @@ function CustomerAiAssistant({ menuItems = [], expiringIngredientContext = [], c
                       item={item}
                       cartItems={cartItems}
                       onAddToCart={onAddToCart}
+                      orderingUnavailable={orderingUnavailable}
                       isAdded={addedRecommendations.includes(`${index}-${item.id}`)}
                       onAdded={() => setAddedRecommendations((current) => [...current, `${index}-${item.id}`])}
                     />
@@ -235,7 +236,7 @@ function CustomerAiAssistant({ menuItems = [], expiringIngredientContext = [], c
   );
 }
 
-function RecommendationCard({ item, cartItems, onAddToCart, isAdded, onAdded }) {
+function RecommendationCard({ item, cartItems, onAddToCart, isAdded, onAdded, orderingUnavailable = false }) {
   const variants = item.variants || [];
   const variantSelectId = useId();
   const [selectedVariantId, setSelectedVariantId] = useState(variants[0]?.id || "");
@@ -245,7 +246,7 @@ function RecommendationCard({ item, cartItems, onAddToCart, isAdded, onAdded }) 
   const isAtStockLimit = quantityInCart >= Number(item.available);
 
   function handleAdd() {
-    if (!onAddToCart || isAtStockLimit) return;
+    if (!onAddToCart || orderingUnavailable || isAtStockLimit) return;
     onAddToCart({ ...item, recommendationSource: "Sumo AI" }, variant, 1);
     onAdded();
   }
@@ -273,8 +274,8 @@ function RecommendationCard({ item, cartItems, onAddToCart, isAdded, onAdded }) 
           </>
         ) : <span>{getItemDisplayPrice(item)}</span>}
       </div>
-      <button type="button" onClick={handleAdd} disabled={!onAddToCart || isAtStockLimit}>
-        {isAdded ? "Added" : isAtStockLimit ? "Max in cart" : "Add to cart"}
+      <button type="button" onClick={handleAdd} disabled={!onAddToCart || orderingUnavailable || isAtStockLimit}>
+        {isAdded ? "Added" : orderingUnavailable ? "Ordering unavailable" : isAtStockLimit ? "Max in cart" : "Add to cart"}
       </button>
     </div>
   );

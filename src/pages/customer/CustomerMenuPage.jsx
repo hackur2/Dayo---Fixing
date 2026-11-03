@@ -57,6 +57,8 @@ function CustomerMenuPage({ cartItems, currentOrder, onAddToCart, onDecreaseQuan
   const { menuItems, expiringIngredientContext, isLoading, errorMessage } = useMenuItems();
   const { promoItem } = usePromoItem();
   const { isAvailable: isOrderingAvailable, isLoading: isCheckingOrdering } = useOnlineOrderingAvailability();
+  // Fail closed while the cloud status is loading or reports that online orders are off.
+  const isOrderingUnavailable = !isOrderingAvailable;
 
   const cartItemCount = getCartItemCount(cartItems);
   const cartTotal = getCartTotal(cartItems);
@@ -159,6 +161,11 @@ function CustomerMenuPage({ cartItems, currentOrder, onAddToCart, onDecreaseQuan
     setSelectedItem(null);
   }
 
+  function handleAddWhenOrderingAvailable(item, selectedVariant = null, quantity = 1) {
+    if (isOrderingUnavailable) return;
+    onAddToCart(item, selectedVariant, quantity);
+  }
+
   return (
     <div className="app-shell">
 
@@ -169,8 +176,9 @@ function CustomerMenuPage({ cartItems, currentOrder, onAddToCart, onDecreaseQuan
         menuItems={availableMenuItems}
         expiringIngredientContext={expiringIngredientContext}
         cartItems={cartItems}
-        onAddToCart={onAddToCart}
+        onAddToCart={handleAddWhenOrderingAvailable}
         itemDetailsOpen={Boolean(selectedItem)}
+        orderingUnavailable={isOrderingUnavailable}
       />
 
       <CollapsibleCategorySidebar
@@ -246,11 +254,12 @@ function CustomerMenuPage({ cartItems, currentOrder, onAddToCart, onDecreaseQuan
                 key={item.id}
                 item={item}
                 onOpenDetails={handleOpenDetails}
-                onAddToCart={onAddToCart}
+                onAddToCart={handleAddWhenOrderingAvailable}
                 quantityInCart={getItemQuantity(cartItems, item.id)}
                 cartIdInCart={cartItems.find((cartItem) => cartItem.id === item.id)?.cartId}
                 onDecreaseFromCart={onDecreaseQuantity}
                 imageLoading={index < 2 ? "eager" : "lazy"}
+                orderingUnavailable={isOrderingUnavailable}
               />
             ))}
           </section>
@@ -308,13 +317,18 @@ function CustomerMenuPage({ cartItems, currentOrder, onAddToCart, onDecreaseQuan
           )}
       </main>
 
-      <BottomCheckoutBar cartItemCount={cartItemCount} cartTotal={cartTotal} />
+      <BottomCheckoutBar
+        cartItemCount={cartItemCount}
+        cartTotal={cartTotal}
+        isOrderingAvailable={isOrderingAvailable}
+      />
 
       <ItemDetailsModal
         item={selectedItem}
         cartItems={cartItems}
         onClose={handleCloseDetails}
-        onAddToCart={onAddToCart}
+        onAddToCart={handleAddWhenOrderingAvailable}
+        orderingUnavailable={isOrderingUnavailable}
       />
     </div>
 

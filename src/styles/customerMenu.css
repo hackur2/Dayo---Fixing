@@ -547,6 +547,19 @@
   outline-offset: 3px;
 }
 
+/* The cloud status is authoritative: customers can browse, but cannot add
+   items while Vercel ordering is closed or its status cannot be confirmed. */
+.menu-card.is-ordering-unavailable {
+  filter: grayscale(1);
+  opacity: 0.52;
+}
+
+.menu-card.is-ordering-unavailable .add-button,
+.menu-card.is-ordering-unavailable .quantity-step-button {
+  background: #9ca3af;
+  cursor: not-allowed;
+}
+
 .menu-card-image {
   width: 76px;
   height: 76px;
@@ -1177,6 +1190,13 @@
 .checkout-action:focus-visible {
   outline: 3px solid #54c8ff;
   outline-offset: 3px;
+}
+
+.checkout-action.disabled {
+  background: #d1d5db;
+  color: #6b7280;
+  cursor: not-allowed;
+  pointer-events: none;
 }
 
 /* Small Phones */

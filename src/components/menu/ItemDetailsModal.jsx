@@ -4,7 +4,7 @@ import MenuItemImage from "../common/MenuItemImage";
 
 import { getItemQuantity } from "../../utils/cartUtils";
 
-function ItemDetailsModal({ item, cartItems, onClose, onAddToCart }) {
+function ItemDetailsModal({ item, cartItems, onClose, onAddToCart, orderingUnavailable = false }) {
   const [selectedVariantId, setSelectedVariantId] = useState(null);
   const [quantity, setQuantity] = useState(1);
 
@@ -83,7 +83,7 @@ const unitPrice = selectedVariant?.price ?? item.price ?? 0;
   }
 
   function handleAddToCart() {
-    if (isUnavailable || isMaxReached) {
+    if (orderingUnavailable || isUnavailable || isMaxReached) {
       return;
     }
 
@@ -166,7 +166,7 @@ const unitPrice = selectedVariant?.price ?? item.price ?? 0;
             <button
               type="button"
               onClick={handleDecreaseQuantity}
-              disabled={quantity === 1}
+              disabled={orderingUnavailable || quantity === 1}
             >
               -
             </button>
@@ -176,7 +176,7 @@ const unitPrice = selectedVariant?.price ?? item.price ?? 0;
             <button
               type="button"
               onClick={handleIncreaseQuantity}
-              disabled={quantity >= remainingStock}
+              disabled={orderingUnavailable || quantity >= remainingStock}
             >
               +
             </button>
@@ -193,9 +193,11 @@ const unitPrice = selectedVariant?.price ?? item.price ?? 0;
           type="button"
           className="modal-add-button"
           onClick={handleAddToCart}
-          disabled={isUnavailable || isMaxReached}
+          disabled={orderingUnavailable || isUnavailable || isMaxReached}
         >
-          {isUnavailable
+          {orderingUnavailable
+            ? "Online Ordering Unavailable"
+            : isUnavailable
             ? "Currently Unavailable"
             : isMaxReached
               ? "Maximum Quantity Reached"

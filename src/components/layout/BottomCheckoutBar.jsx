@@ -2,7 +2,7 @@ import { Link } from "react-router";
 
 import { CUSTOMER_ROUTES } from "../../constants/routes";
 
-function BottomCheckoutBar({ cartItemCount, cartTotal }) {
+function BottomCheckoutBar({ cartItemCount, cartTotal, isOrderingAvailable = true }) {
   // With an empty cart, there is no useful action for this floating bar.
   if (cartItemCount <= 0) {
     return null;
@@ -41,8 +41,15 @@ function BottomCheckoutBar({ cartItemCount, cartTotal }) {
         <strong className="checkout-total-price">₱{formattedTotal}</strong>
       </div>
 
-      <Link to={CUSTOMER_ROUTES.CHECKOUT} className="checkout-action">
-        <span>Checkout</span>
+      <Link
+        to={isOrderingAvailable ? CUSTOMER_ROUTES.CHECKOUT : CUSTOMER_ROUTES.MENU}
+        className={`checkout-action${isOrderingAvailable ? "" : " disabled"}`}
+        aria-disabled={!isOrderingAvailable}
+        onClick={(event) => {
+          if (!isOrderingAvailable) event.preventDefault();
+        }}
+      >
+        <span>{isOrderingAvailable ? "Checkout" : "Ordering unavailable"}</span>
         <svg
           width="17"
           height="17"

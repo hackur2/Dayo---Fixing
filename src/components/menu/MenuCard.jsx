@@ -10,10 +10,12 @@ function MenuCard({
   cartIdInCart = null,
   quantityInCart = 0,
   imageLoading = "lazy",
+  orderingUnavailable = false,
 }) {
   const hasVariants = item.variants?.length > 0;
   const isUnavailable = item.available === 0;
   const isMaxQuantityReached = quantityInCart >= item.available;
+  const isAddDisabled = isUnavailable || isMaxQuantityReached || orderingUnavailable;
   const fallbackText = item.name.charAt(0).toUpperCase();
 
   function handleCardKeyDown(event) {
@@ -26,6 +28,8 @@ function MenuCard({
   function handleAddButtonClick(event) {
     event.stopPropagation();
 
+    if (isAddDisabled) return;
+
     if (hasVariants) {
       onOpenDetails(item);
       return;
@@ -36,7 +40,7 @@ function MenuCard({
 
   return (
     <article
-      className="menu-card"
+      className={`menu-card${orderingUnavailable ? " is-ordering-unavailable" : ""}`}
       role="button"
       tabIndex={0}
       onClick={() => onOpenDetails(item)}
@@ -82,7 +86,7 @@ function MenuCard({
           type="button"
           className="add-button"
           onClick={handleAddButtonClick}
-          disabled={isUnavailable || isMaxQuantityReached}
+          disabled={isAddDisabled}
           aria-label={quantityInCart > 0 ? `Add another ${item.name}` : `Add ${item.name} to bag`}
         >
           <span aria-hidden="true">+</span>
