@@ -108,6 +108,18 @@ To enable the cloud mirror:
 3. In `docker/.env.docker.local`, set `CLOUD_SUPABASE_URL` to the cloud API URL and `CLOUD_SUPABASE_SERVICE_ROLE_KEY` to the cloud service-role/secret key. This key stays in the server-side sync worker; never put it in a `VITE_*` variable. The frontend must point to the local Supabase API.
 4. From the repository root, rebuild the app and worker: `docker compose -f docker/docker-compose.yml --env-file docker/.env.docker.local up -d --build`.
 
+### Docker-controlled online ordering
+
+`20261103000000_online_ordering_availability.sql` adds a fail-closed availability check for customer QR orders. Apply it to **both** the local and cloud databases, then re-run `supabase/snippets/cloud_sync_local_setup.sql` on the local database to add the local Dashboard control.
+
+The Docker build sets `VITE_DEPLOYMENT_MODE=local`, so only the local Super Admin Dashboard shows the **Online ordering** ON/OFF control. A Vercel build defaults to cloud mode and never renders that control. The local sync worker reports the manual setting and a heartbeat to the cloud every five seconds. A cloud customer order is accepted only if the switch is ON and the last heartbeat is newer than 45 seconds. Stopping Docker, turning off the local computer, losing internet access, or failing to configure the worker therefore closes Vercel ordering automatically. The cloud database enforces this rule even when a caller bypasses the customer UI.
+
+#### Apply all SQL with one command
+
+For a new local database, run `npm run db:local:reset`. It starts local Supabase and applies every migration plus the local-only sync setup. **It deletes and recreates the local database**, so do not use it when local records must be retained.
+
+For cloud, link the project once with `npx supabase link --project-ref YOUR_PROJECT_REF`, then run `npm run db:cloud:push`. Supabase applies all versioned migrations in filename order; it does not run the local-only `cloud_sync_local_setup.sql` snippet on cloud.
+
 Each local transaction is saved in one cloud transaction. IDs, composite keys, persisted batch IDs, and cloud receipts prevent duplicates when a response is lost. Records are marked synced locally only after a matching cloud confirmation. New edits during an upload remain pending. Newer or independently changed cloud records cause a conflict; the entire affected batch remains queued and local data stays intact. Cloud records are never deleted by synchronization, including when a row is removed locally. Cloud edits are not pulled into the local database or silently merged.
 
 See [sync/README.md](sync/README.md) for conflict rules, installation, recovery, and testing. Local Auth users, profiles, QR tokens, and Storage files are excluded. Cloud-specific user references are retained on updates; new mirrored rows use null references when local identities do not exist in the cloud. The local Supabase CLI stack is for development; use the official self-hosted Supabase Docker Compose deployment for a permanent production server.

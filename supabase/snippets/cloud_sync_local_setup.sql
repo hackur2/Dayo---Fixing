@@ -22,6 +22,9 @@ create table if not exists local_sync.settings (
 insert into local_sync.settings(singleton) values(true) on conflict do nothing;
 alter table local_sync.settings add column if not exists sync_window_seconds integer default 3600 check(sync_window_seconds > 0);
 alter table local_sync.settings add column if not exists last_cloud_check_at timestamptz;
+alter table local_sync.settings add column if not exists online_ordering_enabled boolean not null default false;
+alter table local_sync.settings add column if not exists last_online_ordering_report_at timestamptz;
+alter table local_sync.settings add column if not exists online_ordering_error text;
 create table if not exists local_sync.record_status (
   table_name text,row_key jsonb,source_version bigint not null,sync_status text not null,
   last_synced_at timestamptz,last_error text,primary key(table_name,row_key)
@@ -235,6 +238,41 @@ revoke all on all functions in schema local_sync from public,anon,authenticated,
 revoke all on function public.request_cloud_sync() from public,anon,authenticated,service_role;
 revoke all on function public.get_cloud_sync_status(uuid) from public,anon,authenticated,service_role;
 grant execute on function public.request_cloud_sync(),public.get_cloud_sync_status(uuid) to authenticated;
+
+-- Local-only Super Admin control. The worker copies this setting to the cloud
+-- with a heartbeat; it is never exposed as a write operation in Vercel.
+create or replace function public.set_local_online_ordering_enabled(p_enabled boolean) returns boolean
+language plpgsql security definer set search_path='' as $$
+begin
+  if not coalesce(public.has_app_role(array['SUPER_ADMIN']::public.app_role[]),false) then
+    raise exception 'Only an authorized Super Admin can change online ordering' using errcode='42501';
+  end if;
+  update local_sync.settings set online_ordering_enabled=p_enabled,online_ordering_error=null where singleton=true;
+  return p_enabled;
+end; $$;
+create or replace function public.get_local_online_ordering_status() returns jsonb
+language plpgsql security definer set search_path='' as $$
+declare v_settings local_sync.settings%rowtype;v_worker local_sync.worker_status%rowtype;
+begin
+  if not coalesce(public.has_app_role(array['SUPER_ADMIN']::public.app_role[]),false) then
+    raise exception 'Only an authorized Super Admin can view online ordering' using errcode='42501';
+  end if;
+  select * into strict v_settings from local_sync.settings where singleton=true;
+  select * into strict v_worker from local_sync.worker_status where singleton=true;
+  return jsonb_build_object(
+    'manual_enabled',v_settings.online_ordering_enabled,
+    'local_online',coalesce(v_worker.configured and v_worker.heartbeat_at>clock_timestamp()-interval '30 seconds'
+      and v_settings.last_online_ordering_report_at>clock_timestamp()-interval '45 seconds',false),
+    'effective_enabled',coalesce(v_settings.online_ordering_enabled and v_worker.configured
+      and v_worker.heartbeat_at>clock_timestamp()-interval '30 seconds'
+      and v_settings.last_online_ordering_report_at>clock_timestamp()-interval '45 seconds',false),
+    'last_cloud_report_at',v_settings.last_online_ordering_report_at,
+    'error',v_settings.online_ordering_error
+  );
+end; $$;
+revoke all on function public.set_local_online_ordering_enabled(boolean) from public,anon,authenticated,service_role;
+revoke all on function public.get_local_online_ordering_status() from public,anon,authenticated,service_role;
+grant execute on function public.set_local_online_ordering_enabled(boolean),public.get_local_online_ordering_status() to authenticated;
 
 do $$
 declare v_table record;v_row jsonb;v_old record;

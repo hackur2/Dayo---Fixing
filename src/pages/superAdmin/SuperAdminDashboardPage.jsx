@@ -10,6 +10,8 @@ import { getDashboardDate } from "../../utils/dashboardUtils";
 import { getDashboardShares } from "../../utils/salesAnalysisUtils";
 import MetricPercentage from "../../components/common/MetricPercentage";
 import CloudSyncControl from "../../components/superAdmin/dashboard/CloudSyncControl";
+import OnlineOrderingControl from "../../components/superAdmin/dashboard/OnlineOrderingControl";
+import { isLocalDeployment } from "../../config/deployment";
 
 import "../../styles/superAdminDashboard.css";
 
@@ -38,7 +40,10 @@ function SuperAdminDashboardPage() {
         <div>
           <h1>Dashboard</h1>
         </div>
-        <CloudSyncControl />
+        <div className="dashboard-operations-controls">
+          <CloudSyncControl />
+          {isLocalDeployment && <OnlineOrderingControl />}
+        </div>
       </div>
 
       {isDashboardLoading && <p role="status">Loading dashboard data...</p>}

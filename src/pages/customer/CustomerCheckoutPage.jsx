@@ -5,6 +5,7 @@ import { CUSTOMER_ROUTES } from "../../constants/routes";
 
 import { getCartTotal } from "../../utils/cartUtils";
 import { getCheckoutValidation } from "../../utils/validationUtils";
+import { useOnlineOrderingAvailability } from "../../hooks/useOnlineOrderingAvailability";
 
 import "../../styles/customerCheckout.css";
 
@@ -26,6 +27,7 @@ function CustomerCheckoutPage({
 
   const [checkoutForm, setCheckoutForm] = useState(DEFAULT_CHECKOUT_FORM);
   const [errors, setErrors] = useState({});
+  const { isAvailable, isLoading: isCheckingAvailability, error: availabilityError } = useOnlineOrderingAvailability();
 
   const cartTotal = getCartTotal(cartItems);
   const hasItems = cartItems.length > 0;
@@ -56,6 +58,8 @@ function CustomerCheckoutPage({
       setErrors(validation.errors);
       return;
     }
+
+    if (!isAvailable) return;
 
     try {
       await onPlaceOrder(checkoutForm);
@@ -91,6 +95,11 @@ function CustomerCheckoutPage({
 
         {submitOrderError && (
           <p className="form-error-message">{submitOrderError}</p>
+        )}
+        {!isCheckingAvailability && !isAvailable && (
+          <p className="form-error-message" role="alert">
+            {availabilityError || "Online ordering is temporarily unavailable. Please try again later."}
+          </p>
         )}
 
         {errors.cart && <p className="form-error-message">{errors.cart}</p>}
@@ -228,9 +237,9 @@ function CustomerCheckoutPage({
             <button
               type="submit"
               className="checkout-main-button"
-              disabled={isSubmittingOrder}
+              disabled={isSubmittingOrder || isCheckingAvailability || !isAvailable}
             >
-              {isSubmittingOrder ? "Submitting Order..." : "Place Order"}
+              {isSubmittingOrder ? "Submitting Order..." : isCheckingAvailability ? "Checking store availability..." : !isAvailable ? "Online Ordering Unavailable" : "Place Order"}
             </button>
           </div>
         </form>

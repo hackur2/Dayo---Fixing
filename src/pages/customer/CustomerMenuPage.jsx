@@ -21,6 +21,7 @@ import AlertMessage from "../../components/common/AlertMessage";
 
 import { useMenuItems } from "../../hooks/useMenuItems";
 import { usePromoItem } from "../../hooks/usePromoItem";
+import { useOnlineOrderingAvailability } from "../../hooks/useOnlineOrderingAvailability";
 
 
 import {
@@ -55,6 +56,7 @@ function CustomerMenuPage({ cartItems, currentOrder, onAddToCart, onDecreaseQuan
 
   const { menuItems, expiringIngredientContext, isLoading, errorMessage } = useMenuItems();
   const { promoItem } = usePromoItem();
+  const { isAvailable: isOrderingAvailable, isLoading: isCheckingOrdering } = useOnlineOrderingAvailability();
 
   const cartItemCount = getCartItemCount(cartItems);
   const cartTotal = getCartTotal(cartItems);
@@ -184,6 +186,10 @@ function CustomerMenuPage({ cartItems, currentOrder, onAddToCart, onDecreaseQuan
 
       <main className="menu-content">
         <SearchBar value={searchTerm} onChange={handleSearchChange} />
+
+        {!isCheckingOrdering && !isOrderingAvailable && (
+          <AlertMessage message="Online ordering is temporarily unavailable. You may browse the menu, but checkout is disabled." type="info" />
+        )}
 
         {currentOrder && (
           <section className="active-order-card">

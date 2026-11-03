@@ -9,6 +9,7 @@
   gap: 16px;
 }
 
+.dashboard-operations-controls { display: flex; align-items: flex-start; justify-content: flex-end; flex-wrap: wrap; gap: 12px; }
 .dashboard-cloud-sync { display: flex; flex-direction: column; align-items: flex-end; gap: 7px; max-width: 520px; text-align: right; }
 .dashboard-sync-button { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 44px; }
 .dashboard-cloud-sync p { margin: 0; font-size: 12px; line-height: 1.5; font-weight: 500; color: var(--color-muted); }
@@ -16,9 +17,23 @@
 .dashboard-cloud-sync .dashboard-sync-message { color: #42603b; }
 .dashboard-cloud-sync .dashboard-sync-message.error { color: var(--color-primary); }
 .dashboard-sync-button:focus-visible { outline: 3px solid var(--color-primary); outline-offset: 3px; }
+.dashboard-online-ordering { display: flex; flex-direction: column; align-items: flex-end; gap: 5px; max-width: 300px; padding: 10px 12px; border: 1px solid var(--color-border-light); border-radius: var(--radius-lg); background: var(--color-white); text-align: right; box-shadow: var(--shadow-card); }
+.dashboard-online-ordering-row { display: flex; align-items: center; justify-content: flex-end; gap: 12px; width: 100%; }
+.dashboard-online-ordering-row > div { min-width: 0; }
+.dashboard-online-ordering-row strong { display: block; color: var(--color-text); font-size: 13px; font-weight: 900; }
+.dashboard-online-ordering p { margin: 0; color: var(--color-muted); font-size: 11px; line-height: 1.35; font-weight: 600; }
+.dashboard-ordering-toggle { flex: 0 0 auto; min-width: 58px; min-height: 34px; border: 1px solid #b43e3e; border-radius: var(--radius-pill); background: #fceceb; color: #9f3131; font: inherit; font-size: 12px; font-weight: 900; cursor: pointer; }
+.dashboard-ordering-toggle.enabled { border-color: #347543; background: #edf5eb; color: #347543; }
+.dashboard-ordering-toggle:disabled { cursor: wait; opacity: .65; }
+.dashboard-ordering-toggle:focus-visible { outline: 3px solid var(--color-primary); outline-offset: 3px; }
+.dashboard-online-ordering .dashboard-ordering-status.online { color: #347543; }
+.dashboard-online-ordering .dashboard-ordering-status.offline { color: var(--color-primary); }
 @media (max-width: 640px) {
   .admin-page .dashboard-heading { flex-wrap: wrap; }
+  .dashboard-operations-controls { width: 100%; justify-content: flex-start; }
   .dashboard-cloud-sync { width: 100%; align-items: flex-start; text-align: left; }
+  .dashboard-online-ordering { width: 100%; max-width: none; align-items: flex-start; text-align: left; }
+  .dashboard-online-ordering-row { justify-content: space-between; }
 }
 
 .dashboard-message {

@@ -25,11 +25,45 @@ let activeRun;
 let lastAutomatic = 0;
 let stopping = false;
 let previousSetupError;
+let previousAvailabilityError;
+let availabilityReporting = false;
+
+async function reportOnlineOrderingAvailability() {
+  if (!configured || availabilityReporting) return;
+  availabilityReporting = true;
+  try {
+    const { rows } = await pool.query("select online_ordering_enabled from local_sync.settings where singleton=true");
+    const enabled = Boolean(rows[0]?.online_ordering_enabled);
+    const { error } = await cloud.rpc("report_local_online_ordering", { p_enabled: enabled });
+    if (error) throw error;
+
+    // The local DB records only a confirmed cloud report. This makes the
+    // dashboard show Offline immediately when the internet/cloud is lost.
+    await pool.query(`update local_sync.settings
+      set last_online_ordering_report_at=clock_timestamp(),online_ordering_error=null
+      where singleton=true`);
+    await pool.query(`update public.online_ordering_status
+      set manual_enabled=$1,local_heartbeat_at=clock_timestamp(),updated_at=clock_timestamp()
+      where singleton=true`, [enabled]);
+    previousAvailabilityError = null;
+  } catch (error) {
+    try {
+      await pool.query("update local_sync.settings set online_ordering_error='Cloud availability report failed.' where singleton=true");
+    } catch { /* local setup may not have been applied yet */ }
+    if (previousAvailabilityError !== error?.code) {
+      console.error("Online ordering availability could not reach the cloud; Vercel ordering will remain unavailable.");
+    }
+    previousAvailabilityError = error?.code;
+  } finally {
+    availabilityReporting = false;
+  }
+}
 
 async function heartbeat() {
   try {
     await pool.query("update local_sync.worker_status set configured=$1,heartbeat_at=clock_timestamp(),error=$2", [configured, configured ? null : "Cloud connection is not configured."]);
     previousSetupError = null;
+    await reportOnlineOrderingAvailability();
   } catch (error) {
     if (previousSetupError !== error.code) console.error("Cloud sync needs local database setup or a database connection.");
     previousSetupError = error.code;
