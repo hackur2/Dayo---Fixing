@@ -1,2 +1,5 @@
 # Auto detect text files and perform LF normalization
 * text=auto
+docs/KB.md text eol=lf
+docs/kb/** text=auto eol=lf
+docs/kb/raw/** -text !eol

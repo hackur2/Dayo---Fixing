@@ -1,0 +1,48 @@
+{
+  "schema_version": 1,
+  "timezone": "Asia/Shanghai",
+  "last_action": {
+    "action": "change",
+    "at": "2026-11-06T00:53:38+08:00",
+    "summary": "Scanned the repository, consolidated the wiki and integrated the existing agent rules."
+  },
+  "last_successful_action": {
+    "action": "change",
+    "at": "2026-11-06T00:53:38+08:00",
+    "summary": "Filed the DaYo repository context scan and checked the wiki."
+  },
+  "last_intake_at": null,
+  "last_compile_at": null,
+  "last_query_at": null,
+  "last_audit_at": null,
+  "automation": null,
+  "sources": {},
+  "outputs": {
+    "outputs/2026-11-06-project-context-and-agent-rules.md": {
+      "status": "filed",
+      "contribution": "Records the agent-rule merge, the project source map and the existing verification baseline.",
+      "wiki_pages": [
+        "wiki/system-overview.md",
+        "wiki/ordering-and-access.md",
+        "wiki/inventory-and-reporting.md",
+        "wiki/deployment-and-sync.md",
+        "wiki/verification.md"
+      ],
+      "evidence": [
+        "../AGENTS-snippet.md",
+        "../../src/routes/AppRoutes.jsx",
+        "../../src/services/inventoryService.js",
+        "../../supabase/migrations/20261020143115_remote_schema.sql",
+        "../../supabase/migrations/20261029000001_expiry_stock_only.sql",
+        "../../supabase/migrations/20261030000003_safe_cloud_sync.sql",
+        "../../supabase/snippets/cloud_sync_local_setup.sql",
+        "../../tests/cloudSync.test.mjs",
+        "../../sync/worker.mjs"
+      ],
+      "reviewed_sha256": "8436be995ec5901d3704df70d0b05ae5862136f07436d3181e9349b73fb538a0",
+      "reviewed_at": "2026-11-06T00:53:38+08:00",
+      "reviewed_by": "assistant (human review pending)"
+    }
+  },
+  "source_relocations": {}
+}
