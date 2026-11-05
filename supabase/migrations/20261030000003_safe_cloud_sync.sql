@@ -1,5 +1,37 @@
 -- Cloud receiver: one acknowledged, replay-safe transaction per local batch.
 begin;
+-- The preceding expiry migrations replace this trigger. Restore the mirror
+-- guard here as well so databases upgraded before that correction can safely
+-- install this receiver without replaying order inventory deductions.
+create or replace function public.deduct_order_ingredients_on_completion()
+returns trigger language plpgsql security definer set search_path = '' as $$
+declare v_claimed_order_id text; v_requirement record; v_updated_count integer;
+begin
+  if auth.role() = 'service_role' and current_setting('app.sync_source', true) = 'cloud_mirror' then return new; end if;
+  if new.status <> 'Completed' then return new; end if;
+  if tg_op = 'UPDATE' and old.status = 'Completed' then return new; end if;
+  insert into public.order_inventory_deductions(order_id) values(new.id::text)
+    on conflict(order_id) do nothing returning order_id into v_claimed_order_id;
+  if v_claimed_order_id is null then return new; end if;
+  for v_requirement in
+    select recipe.ingredient_id, sum(recipe.quantity * ordered_item.quantity)::numeric as quantity
+    from public.order_items ordered_item join public.menu_item_ingredients recipe on recipe.menu_item_id = ordered_item.menu_item_id
+    where ordered_item.order_id = new.id group by recipe.ingredient_id order by recipe.ingredient_id
+  loop
+    update public.ingredients set current_stock = current_stock - v_requirement.quantity
+      where id = v_requirement.ingredient_id and current_stock >= v_requirement.quantity and archived_at is null
+        and (expires_on is null or expires_on > (clock_timestamp() at time zone 'Asia/Manila')::date);
+    get diagnostics v_updated_count = row_count;
+    if v_updated_count = 0 then
+      raise exception 'Insufficient or expired stock for ingredient %. Order % was not completed.', v_requirement.ingredient_id, new.order_number using errcode = '23514';
+    end if;
+    insert into public.stock_movements(ingredient_id, adjustment, reason)
+      values(v_requirement.ingredient_id, -v_requirement.quantity, 'Order ' || new.order_number || ' completed');
+  end loop;
+  return new;
+end;
+$$;
+revoke all on function public.deduct_order_ingredients_on_completion() from public, anon, authenticated, service_role;
 do $$ declare v_name text;v_function regprocedure;begin
   foreach v_name in array array['deduct_order_ingredients_on_completion','set_updated_at',
     'sync_menu_availability_from_ingredient','sync_menu_availability_from_menu_item','sync_menu_availability_from_recipe'] loop

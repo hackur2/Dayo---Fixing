@@ -1,0 +1,5 @@
+# Verification of the cloud-to-local business import
+
+On 2026-11-06 the owner shared a verification result from local Supabase Studio after running the [cloud-to-local procedure](2026-11-06-cloud-to-local-copy.md). It shows 87 orders, 109 order items, 21 ingredients, 11 suppliers, 233 stock movements, and ₱3,280.00 in completed-order revenue. It also lists a local backup schema with the `dayo_before_cloud_import_` prefix.
+
+The counts and completed revenue match the supplied, checksum-verified cloud snapshot. The assistant calculated the totals from the supplied snapshot without connecting to either database. The committed local backup and local totals are evidenced by the owner’s screenshot. This establishes the one-time copy at the snapshot boundary. Future outbound sync ownership and subsequent cloud changes were outside the check. [Local import validation](2026-11-06-02-local-import.sql) · [Cloud sync conflict checks](../../../supabase/migrations/20261030000005_sync_receiver_performance.sql#L71)

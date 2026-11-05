@@ -12,11 +12,11 @@ export async function authenticateUser({ email, password }) {
 
   const { data: profile, error: profileError } = await supabase
     .from("profiles")
-    .select("id, display_name, role, is_authorized")
+    .select("id, display_name, role, is_authorized, allowed_routes")
     .eq("id", authData.user.id)
     .single();
 
-  if (profileError || !profile?.is_authorized) {
+  if (profileError || !profile?.is_authorized || (profile.role === "ADMIN" && !profile.allowed_routes?.length)) {
     await supabase.auth.signOut();
     throw profileError || new Error("This account is not authorized.");
   }
@@ -27,5 +27,6 @@ export async function authenticateUser({ email, password }) {
     email: authData.user.email,
     role: profile.role,
     isAuthorized: profile.is_authorized,
+    allowedRoutes: profile.allowed_routes || [],
   };
 }

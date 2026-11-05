@@ -18,11 +18,19 @@ export const staffShiftService = {
     if (error) throw error; return data.map(normalize);
   },
   async createStaff(payload) {
-    const { data: staff, error: staffError } = await supabase.from("staff").insert({ full_name: payload.staffName, role_label: payload.role }).select("*").single();
-    if (staffError) throw staffError;
-    const { data: shift, error } = await supabase.from("staff_shifts").insert({ staff_id: staff.id, shift_date: payload.shiftDate }).select("*").single();
+    const { data, error } = await supabase.functions.invoke("create-staff-account", {
+      body: {
+        staffName: payload.staffName,
+        email: payload.email,
+        password: payload.password,
+        roleLabel: payload.role,
+        allowedRoutes: payload.allowedRoutes,
+        shiftDate: payload.shiftDate,
+      },
+    });
     if (error) throw error;
-    return normalize({ ...shift, staff });
+    if (!data?.staff) throw new Error(data?.error || "Unable to create the staff account.");
+    return normalize(data.staff);
   },
   async updateStaff(shiftId, payload) {
     const { data: shift, error: readError } = await supabase.from("staff_shifts").select("staff_id").eq("id", shiftId).single();

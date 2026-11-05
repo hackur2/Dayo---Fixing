@@ -37,8 +37,11 @@ export function normalizeStaffShifts(data) {
 export function createStaffPayload(addStaffForm, fallbackDate) {
   return {
     staffName: addStaffForm.staffName.trim(),
-    role: addStaffForm.role,
+    role: addStaffForm.role || addStaffForm.position,
     shiftDate: fallbackDate || addStaffForm.shiftDate || new Date().toISOString().slice(0, 10),
+    email: (addStaffForm.email || "").trim(),
+    password: addStaffForm.password || "",
+    allowedRoutes: addStaffForm.allowedRoutes || [],
   };
 }
 

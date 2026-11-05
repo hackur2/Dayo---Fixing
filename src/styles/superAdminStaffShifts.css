@@ -67,6 +67,37 @@
   justify-content: flex-end;
 }
 
+.staff-access-options {
+  display: grid;
+  gap: 8px;
+  padding: 12px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+}
+
+.staff-access-options legend {
+  padding: 0 4px;
+  color: var(--color-text);
+  font-weight: 800;
+}
+
+.staff-access-options p {
+  margin: 0;
+  color: var(--color-muted);
+  font-size: 13px;
+}
+
+.staff-access-options label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 700;
+}
+
+.staff-access-options input {
+  width: auto;
+}
+
 /* STAFF SHIFTS PAGE LAYOUT FIX */
 
 .staff-shifts-heading-actions {

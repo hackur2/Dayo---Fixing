@@ -1,7 +1,7 @@
 import { Navigate, useLocation } from "react-router";
 
 import { AUTH_ROUTES } from "../../constants/routes";
-import { getRoleHomeRoute } from "../../utils/authRouteUtils";
+import { getRoleHomeRoute, isRouteAllowedForUser } from "../../utils/authRouteUtils";
 import { useAuthenticatedUser } from "../../hooks/useAuthenticatedUser";
 
 function ProtectedRoute({ allowedRoles, children }) {
@@ -22,8 +22,8 @@ function ProtectedRoute({ allowedRoles, children }) {
     );
   }
 
-  if (!allowedRoles.includes(currentUser.role)) {
-    return <Navigate to={getRoleHomeRoute(currentUser.role)} replace />;
+  if (!allowedRoles.includes(currentUser.role) || !isRouteAllowedForUser(currentUser, location.pathname)) {
+    return <Navigate to={getRoleHomeRoute(currentUser)} replace />;
   }
 
   return children;

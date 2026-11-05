@@ -94,6 +94,7 @@ test("order sources count each order once and use the same AI classification as 
   const { service } = mockApi({ orders: [
     { source: "QR Order", order_items: [] },
     { source: "Manual POS", order_items: [] },
+    { source: "Manual Order Taker", order_items: [] },
     { source: "QR Order", order_items: [aiItem, aiItem] },
     { source: "Manual POS", order_items: [aiItem] },
     { source: "Sumo AI", order_items: [] },
@@ -102,7 +103,7 @@ test("order sources count each order once and use the same AI classification as 
   const summary = await service.getDashboardSummary();
   assert.deepEqual(summary.orderSources, [
     { source: "QR Order", count: 2 },
-    { source: "Manual POS", count: 1 },
+    { source: "Manual Order Taker", count: 2 },
     { source: "Sumo AI", count: 3 },
   ]);
   assert.equal(summary.orderSources.reduce((sum, source) => sum + source.count, 0), summary.totalOrders);

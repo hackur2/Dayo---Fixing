@@ -7,7 +7,7 @@ import SortableHeader from "../../components/common/SortableHeader";
 import Pagination from "../../components/common/Pagination";
 import { usePagination } from "../../hooks/usePagination";
 import { getOrderDateTime, sortRecords } from "../../utils/sortUtils";
-import { getOrderSourceLabel } from "../../utils/orderUtils";
+import { getOrderSourceLabel, MANUAL_ORDER_SOURCE, normalizeOrderSource } from "../../utils/orderUtils";
 
 import "../../styles/superAdminOrders.css";
 
@@ -20,7 +20,7 @@ const STATUS_OPTIONS = [
   "Cancelled",
 ];
 
-const SOURCE_OPTIONS = ["All", "QR Order", "Manual POS"];
+const SOURCE_OPTIONS = ["All", "QR Order", MANUAL_ORDER_SOURCE];
 
 function formatPeso(amount) {
   return `₱${Number(amount).toLocaleString("en-PH", {
@@ -78,7 +78,7 @@ function SuperAdminOrdersPage() {
         statusFilter === "All" || order.status === statusFilter;
 
       const matchesSource =
-        sourceFilter === "All" || order.source === sourceFilter;
+        sourceFilter === "All" || normalizeOrderSource(order.source) === sourceFilter;
 
       return matchesSearch && matchesStatus && matchesSource;
     });

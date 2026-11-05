@@ -1,0 +1,5 @@
+# Supplier comparison results
+
+On 2026-11-06 the owner shared the results of the same `public.suppliers` query in both SQL Editors. The cloud result contains 11 rows. The local result contains zero rows and reports success. This confirms a difference in the visible supplier records. The screenshot does not establish whether the cloud records are operational or sample data. [Read-only comparison](2026-11-06-local-cloud-inventory-comparison.md#read-only-sql-for-local-and-cloud)
+
+A full replacement with the current local data would leave the cloud supplier directory empty. The ordinary Sync to Cloud action leaves cloud-only supplier rows in place because it does not propagate deletes. If the owner intends to retain any of the existing records, verify those suppliers and bring them into the local master before the replacement. This review used screenshot counts and repository code. [Sync record rules](../../../sync/README.md#record-and-transaction-rules) · [Supplier service](../../../src/services/supplierService.js#L43)

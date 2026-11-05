@@ -3,17 +3,17 @@
   "timezone": "Asia/Shanghai",
   "last_action": {
     "action": "change",
-    "at": "2026-11-06T00:53:38+08:00",
-    "summary": "Scanned the repository, consolidated the wiki and integrated the existing agent rules."
+    "at": "2026-11-06T03:00:00+08:00",
+    "summary": "Prepared Staff Monitor login provisioning and per-page Admin access."
   },
   "last_successful_action": {
     "action": "change",
-    "at": "2026-11-06T00:53:38+08:00",
-    "summary": "Filed the DaYo repository context scan and checked the wiki."
+    "at": "2026-11-06T03:00:00+08:00",
+    "summary": "Verified prepared Staff Monitor login provisioning and per-page Admin access with focused route tests and a production build."
   },
   "last_intake_at": null,
   "last_compile_at": null,
-  "last_query_at": null,
+  "last_query_at": "2026-11-06T02:19:19+08:00",
   "last_audit_at": null,
   "automation": null,
   "sources": {},
@@ -41,6 +41,228 @@
       ],
       "reviewed_sha256": "8436be995ec5901d3704df70d0b05ae5862136f07436d3181e9349b73fb538a0",
       "reviewed_at": "2026-11-06T00:53:38+08:00",
+      "reviewed_by": "assistant (human review pending)"
+    },
+    "outputs/2026-11-06-local-to-cloud-replacement-sync.md": {
+      "status": "filed",
+      "contribution": "Documents that Sync to Cloud cannot delete or automatically overwrite cloud data, and identifies the required administrative handoff safeguards.",
+      "wiki_pages": [
+        "wiki/deployment-and-sync.md"
+      ],
+      "evidence": [
+        "../../sync/README.md",
+        "../../sync/engine.mjs",
+        "../../supabase/snippets/cloud_sync_local_setup.sql",
+        "../../supabase/migrations/20261030000003_safe_cloud_sync.sql"
+      ],
+      "reviewed_sha256": "6fca0aff11fe50b3b591d3ab26f17798af1ed6572468868194e2ab46eca9b4f6",
+      "reviewed_at": "2026-11-06T01:22:55+08:00",
+      "reviewed_by": "assistant (human review pending)"
+    },
+    "outputs/2026-11-06-local-cloud-dashboard-comparison.md": {
+      "status": "filed",
+      "contribution": "Identifies the order key and values to compare when cloud and local dashboard aggregates differ.",
+      "wiki_pages": ["wiki/deployment-and-sync.md"],
+      "evidence": [
+        "../../src/services/dashboardService.js",
+        "../../src/components/superAdmin/dashboard/CloudSyncControl.jsx",
+        "../../sync/engine.mjs",
+        "../../supabase/snippets/cloud_sync_local_setup.sql",
+        "../../supabase/migrations/20261020143115_remote_schema.sql"
+      ],
+      "reviewed_sha256": "ae6a303ad0c1c5df645ec12c696463dcdbf69dafca34cc652ece83a51b58a6c0",
+      "reviewed_at": "2026-11-06T01:22:55+08:00",
+      "reviewed_by": "assistant (human review pending)"
+    },
+    "outputs/2026-11-06-local-cloud-inventory-comparison.md": {
+      "status": "filed",
+      "contribution": "Maps Shelf Life and Low Stock to inventory and movement data and provides read-only comparisons.",
+      "wiki_pages": ["wiki/inventory-and-reporting.md"],
+      "evidence": [
+        "../../src/services/inventoryService.js",
+        "../../src/services/shelfLifeService.js",
+        "../../src/services/ingredientReorderService.js",
+        "../../src/utils/ingredientReorderUtils.js",
+        "../../src/utils/inventoryUtils.js",
+        "../../src/utils/lowStockUtils.js",
+        "../../supabase/migrations/20261030000003_safe_cloud_sync.sql",
+        "../../sync/README.md"
+      ],
+      "reviewed_sha256": "0cf71ec12989771c8cb85e9dacc477d0083d713ecbc4e63a00b6cb3f08fa8b1c",
+      "reviewed_at": "2026-11-06T01:26:15+08:00",
+      "reviewed_by": "assistant (human review pending)"
+    },
+    "outputs/2026-11-06-ingredient-query-results.md": {
+      "status": "reviewed, no change",
+      "contribution": "Records point-in-time differences. The inventory topic already documents the comparison procedure.",
+      "wiki_pages": [],
+      "evidence": [
+        "../../supabase/migrations/20261030000000_ingredient_unit_cost.sql",
+        "../../supabase/migrations/20261029000001_expiry_stock_only.sql"
+      ],
+      "reviewed_sha256": "d5d25530e79c058e0f6a8495d0546ce0b13ffc0a899b271dfe2200f198dc3bd6",
+      "reviewed_at": "2026-11-06T01:30:04+08:00",
+      "reviewed_by": "assistant (human review pending)"
+    },
+    "outputs/2026-11-06-supplier-query-results.md": {
+      "status": "reviewed, no change",
+      "contribution": "Records point-in-time counts. The inventory and sync topics already cover the underlying behavior.",
+      "wiki_pages": [],
+      "evidence": ["../../sync/README.md", "../../src/services/supplierService.js"],
+      "reviewed_sha256": "7de0f3e02bf2647653f111a5ec4c91e1de25826aea5deb84d1e0f30a2039053a",
+      "reviewed_at": "2026-11-06T01:31:25+08:00",
+      "reviewed_by": "assistant (human review pending)"
+    },
+    "outputs/2026-11-06-cloud-to-local-copy.md": {
+      "status": "filed",
+      "contribution": "Records the owner’s choice of cloud as the source for a one-time copy and the tested SQL Editor procedure.",
+      "wiki_pages": ["wiki/deployment-and-sync.md"],
+      "evidence": [
+        "outputs/2026-11-06-01-cloud-export.sql",
+        "outputs/2026-11-06-02-local-import.sql",
+        "../../supabase/migrations/20261030000003_safe_cloud_sync.sql",
+        "../../supabase/migrations/20261103000000_online_ordering_availability.sql",
+        "../../supabase/snippets/cloud_sync_local_setup.sql"
+      ],
+      "reviewed_sha256": "64495bfc1cb57bddddf97bf497180c3c1d3857d10bdf7d49afbbb882c23ed191",
+      "reviewed_at": "2026-11-06T01:39:21+08:00",
+      "reviewed_by": "assistant (human review pending)"
+    },
+    "outputs/2026-11-06-cloud-to-local-verification.md": {
+      "status": "filed",
+      "contribution": "Records owner-provided evidence of the completed import and verifies the local totals against the supplied cloud snapshot.",
+      "wiki_pages": ["wiki/deployment-and-sync.md"],
+      "evidence": [
+        "outputs/2026-11-06-02-local-import.sql",
+        "../../supabase/migrations/20261030000005_sync_receiver_performance.sql"
+      ],
+      "reviewed_sha256": "12c609b7db517813ddec1f6b5c4f6d5354e701bc24f39d057f83dca4261ba725",
+      "reviewed_at": "2026-11-06T01:52:57+08:00",
+      "reviewed_by": "assistant (human review pending)"
+    },
+    "outputs/2026-11-06-cloud-sync-restart-check.md": {
+      "status": "filed",
+      "contribution": "Separates empty-queue startup from verification of later uploads and provides a read-only queue check.",
+      "wiki_pages": ["wiki/deployment-and-sync.md"],
+      "evidence": [
+        "outputs/2026-11-06-02-local-import.sql",
+        "../../sync/worker.mjs",
+        "../../sync/engine.mjs",
+        "../../supabase/snippets/cloud_sync_local_setup.sql",
+        "../../supabase/migrations/20261030000005_sync_receiver_performance.sql"
+      ],
+      "reviewed_sha256": "866bcc1bb0b5b86fa578c25301f1dc33d1ce4b55ba8db3e7554f854222446f7d",
+      "reviewed_at": "2026-11-06T01:55:50+08:00",
+      "reviewed_by": "assistant (human review pending)"
+    },
+    "outputs/2026-11-06-cloud-menu-edit-direction.md": {
+      "status": "filed",
+      "contribution": "Distinguishes one-time import, ongoing outbound menu sync, and inbound KDS orders.",
+      "wiki_pages": ["wiki/deployment-and-sync.md"],
+      "evidence": [
+        "../../src/services/inventoryService.js",
+        "../../src/lib/supabase.js",
+        "../../sync/engine.mjs",
+        "../../sync/worker.mjs",
+        "../../supabase/migrations/20261030000005_sync_receiver_performance.sql"
+      ],
+      "reviewed_sha256": "40ed8da2ae0d89160b4976a65d62f6418803507484caa0981b667d76753fea54",
+      "reviewed_at": "2026-11-06T02:02:10+08:00",
+      "reviewed_by": "assistant (human review pending)"
+    },
+    "outputs/2026-11-06-local-first-and-cloud-pull.md": {
+      "status": "filed",
+      "contribution": "Defines the practical offline criterion for DaYo and distinguishes it from sync direction.",
+      "wiki_pages": ["wiki/deployment-and-sync.md"],
+      "evidence": [
+        "../../docker/docker-compose.yml",
+        "../../src/services/orderService.js",
+        "../../sync/README.md",
+        "../../sync/worker.mjs",
+        "../../supabase/migrations/20261103000000_online_ordering_availability.sql"
+      ],
+      "reviewed_sha256": "5fb3bd27309dfb39a0b8f2187d10a75678c5f79f54932cb2e876d5f4c66133d4",
+      "reviewed_at": "2026-11-06T02:04:16+08:00",
+      "reviewed_by": "assistant (human review pending)"
+    },
+    "outputs/2026-11-06-cloud-dashboard-docker-off.md": {
+      "status": "filed",
+      "contribution": "Separates hosted dashboard availability, local catch-up, and online order acceptance during a local outage.",
+      "wiki_pages": ["wiki/deployment-and-sync.md"],
+      "evidence": [
+        "../../src/routes/AppRoutes.jsx",
+        "../../src/lib/supabase.js",
+        "../../src/services/dashboardService.js",
+        "../../docker/docker-compose.yml",
+        "../../supabase/migrations/20261103000000_online_ordering_availability.sql",
+        "../../sync/worker.mjs",
+        "../../supabase/snippets/cloud_sync_local_setup.sql"
+      ],
+      "reviewed_sha256": "2f1d6d56ab0a7d0edd040981160525be9847b55f5963fe79b0b7c612edc218b0",
+      "reviewed_at": "2026-11-06T02:09:43+08:00",
+      "reviewed_by": "assistant (human review pending)"
+    },
+    "outputs/2026-11-06-cloud-route-access-scope.md": {
+      "status": "filed",
+      "contribution": "Separates cloud routes, server-side staff permissions, and QR menu access requirements.",
+      "wiki_pages": ["wiki/ordering-and-access.md"],
+      "evidence": [
+        "../../src/routes/AppRoutes.jsx",
+        "../../src/config/deployment.js",
+        "../../src/components/auth/ProtectedRoute.jsx",
+        "../../src/components/customer/CustomerAccessGate.jsx",
+        "../../src/constants/userRoles.js",
+        "../../vercel.json",
+        "../../supabase/migrations/20261020143115_remote_schema.sql"
+      ],
+      "reviewed_sha256": "98ad064db06fa46eb72d6ea2476184032039cf1bf6f9f1aacef3c366ef44fdf2",
+      "reviewed_at": "2026-11-06T02:13:29+08:00",
+      "reviewed_by": "assistant (human review pending)"
+    },
+    "outputs/2026-11-06-order-taker-naming.md": {
+      "status": "filed",
+      "contribution": "Distinguishes the Order Taker display label from the persisted source and identifies rename dependencies.",
+      "wiki_pages": ["wiki/ordering-and-access.md"],
+      "evidence": [
+        "../../supabase/migrations/20261020143115_remote_schema.sql",
+        "../../src/utils/orderUtils.js",
+        "../../src/services/dashboardService.js",
+        "../../src/pages/superAdmin/SuperAdminOrdersPage.jsx"
+      ],
+      "reviewed_sha256": "b9bc7b3ecd6736cd464b9cadec1e4b3e9bda02788849d4d3d5c381f4442ab9bd",
+      "reviewed_at": "2026-11-06T02:19:19+08:00",
+      "reviewed_by": "assistant (human review pending)"
+    },
+    "outputs/2026-11-06-staff-login-access-change.md": {
+      "status": "filed",
+      "contribution": "Records prepared Staff Monitor login provisioning, selected Admin page access, and required deployment steps.",
+      "wiki_pages": ["wiki/system-overview.md"],
+      "evidence": [
+        "../../src/components/superAdmin/staff/AddStaffModal.jsx",
+        "../../src/services/staffShiftService.js",
+        "../../src/components/auth/ProtectedRoute.jsx",
+        "../../supabase/functions/create-staff-account/index.ts",
+        "../../supabase/migrations/20261106000001_staff_login_access.sql",
+        "../../tests/authRouteUtils.test.mjs"
+      ],
+      "reviewed_sha256": "d8e8f198fd8b8ed746955ce9b66cc926d68a20703f603ba74d5f8fea6764e909",
+      "reviewed_at": "2026-11-06T03:00:00+08:00",
+      "reviewed_by": "assistant (human review pending)"
+    },
+    "outputs/2026-11-06-manual-order-taker-source-change.md": {
+      "status": "filed",
+      "contribution": "Records the owner-confirmed stored source rename, tested report compatibility, and pending rollout steps.",
+      "wiki_pages": ["wiki/ordering-and-access.md"],
+      "evidence": [
+        "../../supabase/migrations/20261106000000_manual_order_taker_source.sql",
+        "../../src/utils/orderUtils.js",
+        "../../src/services/dashboardService.js",
+        "../../src/pages/superAdmin/SuperAdminOrdersPage.jsx",
+        "../../tests/manualOrderSourceSql.test.mjs",
+        "../../tests/dashboardService.test.mjs"
+      ],
+      "reviewed_sha256": "ad0705e0a190aff02460c26ccd7a31b625cef3472e969e423804929f18bb223b",
+      "reviewed_at": "2026-11-06T02:28:26+08:00",
       "reviewed_by": "assistant (human review pending)"
     }
   },

@@ -102,7 +102,7 @@ A change that needs a database or deployment step stays recorded as prepared unt
 
 A short, dated pointer list, newest first. The details are in the application changelog and in the filed reports. Add a line here when you record an update.
 
-- None yet.
+- 2026-11-06, prepared: [Manual Order Taker source](kb/outputs/2026-11-06-manual-order-taker-source-change.md). [Application changelog](../CHANGELOG.md)
 
 ## Monthly health check
 

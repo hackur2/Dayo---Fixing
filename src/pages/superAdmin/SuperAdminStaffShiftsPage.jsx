@@ -8,6 +8,7 @@ import StaffFilters from "../../components/superAdmin/staff/StaffFilters";
 import StaffShiftTable from "../../components/superAdmin/staff/StaffShiftTable";
 import StaffSummaryCards from "../../components/superAdmin/staff/StaffSummaryCards";
 import { sortRecords } from "../../utils/sortUtils";
+import { STAFF_ACCESS_OPTIONS } from "../../constants/routes";
 import { useStaffShiftsData } from "../../hooks/useStaffShiftsData";
 
 import "../../styles/superAdminStaffShifts.css";
@@ -28,6 +29,9 @@ const STAFF_STATUS_OPTIONS = ["All", "On Duty", "Completed", "Late", "Absent"];
 const DEFAULT_STAFF_FORM = {
   staffName: "",
   position: "Cashier",
+  email: "",
+  password: "",
+  allowedRoutes: [],
 };
 
 const DEFAULT_EDIT_FORM = {
@@ -40,10 +44,6 @@ const DEFAULT_EDIT_FORM = {
 
 function getTodayDate() {
   return new Date().toISOString().slice(0, 10);
-}
-
-function createStaffId() {
-  return Date.now();
 }
 
 function getStaffPosition(staff) {
@@ -212,15 +212,17 @@ function SuperAdminStaffShiftsPage() {
   async function handleSubmitAddStaff(event) {
     event.preventDefault();
 
-    if (!addStaffForm.staffName.trim()) {
+    if (!addStaffForm.staffName.trim() || !addStaffForm.email.trim() || addStaffForm.password.length < 8 || !addStaffForm.allowedRoutes.length) {
       return;
     }
 
     const newStaff = {
-      id: createStaffId(),
       staffName: addStaffForm.staffName.trim(),
       position: addStaffForm.position,
       role: addStaffForm.position,
+      email: addStaffForm.email,
+      password: addStaffForm.password,
+      allowedRoutes: addStaffForm.allowedRoutes,
       dateAdded: getTodayDate(),
       shiftDate: getTodayDate(),
       scheduledTimeIn: "",
@@ -237,7 +239,6 @@ function SuperAdminStaffShiftsPage() {
         await createStaff(newStaff);
       }
 
-      setLocalStaffShifts((currentStaff) => [newStaff, ...currentStaff]);
       closeAddStaffModal();
     } catch (error) {
       console.error("Unable to add staff:", error.message);
@@ -387,6 +388,7 @@ function SuperAdminStaffShiftsPage() {
         <AddStaffModal
           formData={addStaffForm}
           positionOptions={STAFF_POSITION_OPTIONS}
+          accessOptions={STAFF_ACCESS_OPTIONS}
           onChange={updateAddStaffForm}
           onClose={closeAddStaffModal}
           onSubmit={handleSubmitAddStaff}

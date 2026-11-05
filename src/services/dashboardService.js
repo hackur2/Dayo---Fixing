@@ -7,6 +7,7 @@ import { getWeeklyStockMovements } from "./potentialExcessService";
 import { synchronizeIngredientExpiry } from "./ingredientExpiryService";
 import { getIngredientSales30Days } from "./ingredientReorderService";
 import { applyIngredientReorderPoints } from "../utils/ingredientReorderUtils";
+import { MANUAL_ORDER_SOURCE, normalizeOrderSource } from "../utils/orderUtils";
 
 export function createDashboardService(client) {
   async function getAllRecords(table, columns) {
@@ -90,12 +91,12 @@ export function createDashboardService(client) {
         totalSales,
         todaySales,
         totalOrders: orders.length,
-        orderSources: ["QR Order", "Manual POS", "Sumo AI"].map((source) => ({
+        orderSources: ["QR Order", MANUAL_ORDER_SOURCE, "Sumo AI"].map((source) => ({
           source,
           count: orders.filter((order) => {
             const orderSource = (order.order_items ?? []).some((item) => item.recommendation_source === "Sumo AI")
               ? "Sumo AI"
-              : order.source || "QR Order";
+              : normalizeOrderSource(order.source) || "QR Order";
             return orderSource === source;
           }).length,
         })),

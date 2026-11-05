@@ -1,6 +1,7 @@
 function AddStaffModal({
   formData,
   positionOptions,
+  accessOptions,
   onChange,
   onClose,
   onSubmit,
@@ -43,6 +44,27 @@ function AddStaffModal({
               ))}
             </select>
           </label>
+
+          <label>
+            Login Email
+            <input type="email" value={formData.email} onChange={(event) => onChange("email", event.target.value)} placeholder="staff@yourcompany.com" required />
+          </label>
+
+          <label>
+            Temporary Password
+            <input type="password" minLength="8" value={formData.password} onChange={(event) => onChange("password", event.target.value)} placeholder="At least 8 characters" autoComplete="new-password" required />
+          </label>
+
+          <fieldset className="staff-access-options">
+            <legend>Allowed Pages</legend>
+            <p>Choose only the pages this staff member can open.</p>
+            {accessOptions.map((option) => (
+              <label key={option.path}>
+                <input type="checkbox" checked={formData.allowedRoutes.includes(option.path)} onChange={(event) => onChange("allowedRoutes", event.target.checked ? [...formData.allowedRoutes, option.path] : formData.allowedRoutes.filter((path) => path !== option.path))} />
+                {option.label}
+              </label>
+            ))}
+          </fieldset>
 
           <div className="staff-modal-actions">
             <button type="button" className="secondary-button" onClick={onClose}>

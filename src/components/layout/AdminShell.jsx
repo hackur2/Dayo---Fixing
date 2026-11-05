@@ -4,6 +4,7 @@ import { Link, useLocation, useNavigate } from "react-router";
 import { AUTH_ROUTES, CUSTOMER_ROUTES } from "../../constants/routes";
 import { clearAuthUser } from "../../utils/authUtils";
 import { getCurrentNavigationLabel } from "../../utils/adminNavigationUtils";
+import { getStoredAuthUser } from "../../utils/authUtils";
 import { supabase } from "../../lib/supabase";
 import { AdminShellContext } from "./AdminShellContext";
 import AdminSidebarNavigation from "./AdminSidebarNavigation";
@@ -14,10 +15,14 @@ function AdminShell({ roleName, navLinks, pageTitle, children }) {
   const location = useLocation();
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [headerActionsTarget, setHeaderActionsTarget] = useState(null);
+  const currentUser = getStoredAuthUser();
+  const visibleNavLinks = currentUser?.role === "ADMIN"
+    ? navLinks.filter((link) => currentUser.allowedRoutes?.includes(link.path))
+    : navLinks;
 
   const currentPageName =
     pageTitle ||
-    getCurrentNavigationLabel(navLinks, location) || roleName;
+    getCurrentNavigationLabel(visibleNavLinks, location) || roleName;
 
   async function handleLogout() {
     try {
@@ -51,7 +56,7 @@ function AdminShell({ roleName, navLinks, pageTitle, children }) {
           </div>
 
 
-          <AdminSidebarNavigation navLinks={navLinks} roleName={roleName} />
+          <AdminSidebarNavigation navLinks={visibleNavLinks} roleName={roleName} />
 
           <div className="admin-sidebar-footer">
             <Link className="admin-sidebar-footer-link" to={CUSTOMER_ROUTES.MENU}>

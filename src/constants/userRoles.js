@@ -1,4 +1,4 @@
-import { ADMIN_ROUTES, CUSTOMER_ROUTES, SUPER_ADMIN_ROUTES } from "./routes";
+import { ADMIN_ROUTES, CUSTOMER_ROUTES, SUPER_ADMIN_ROUTES } from "./routes.js";
 
 export const USER_ROLES = {
   SUPER_ADMIN: "SUPER_ADMIN",

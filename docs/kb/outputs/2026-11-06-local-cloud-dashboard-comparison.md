@@ -1,0 +1,7 @@
+# Local and cloud dashboard comparison
+
+On 2026-11-06 the owner asked about differences shown in a side-by-side screenshot. The Vercel dashboard shows 87 total orders, ₱3,280.00 in completed-order revenue, and a 39.1% completion rate. The localhost dashboard shows 68 orders, ₱2,970.00, and 41.2%. Cloud displays 19 more orders and ₱310.00 more in revenue. The screenshot does not establish which rows differ or why.
+
+The [dashboard service](../../../src/services/dashboardService.js#L29) counts fetched order rows for Total Orders and sums order-item subtotals for completed-order revenue. The local dashboard shows the last successful sync at Nov 4, 2:50 AM and the last successful cloud check at Nov 6, 1:19 AM. A cloud check can succeed with zero uploaded records. It does not compare local and cloud contents. [Status display](../../../src/components/superAdmin/dashboard/CloudSyncControl.jsx#L19) · [Worker engine](../../../sync/engine.mjs#L76) · [Local batch acknowledgement](../../../supabase/snippets/cloud_sync_local_setup.sql#L199)
+
+The difference in counts is net. Compare the unique `order_number` sets and then check statuses and order-item subtotals for matching orders before deciding which cloud rows need reconciliation. This review used screenshot aggregates and repository code. It did not query either database. [Order schema](../../../supabase/migrations/20261020143115_remote_schema.sql#L238)

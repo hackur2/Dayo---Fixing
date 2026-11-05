@@ -18,6 +18,12 @@ export const ADMIN_ROUTES = {
   ORDER_SUMMARY: "/admin/order-summary",
 };
 
+export const STAFF_ACCESS_OPTIONS = [
+  { path: ADMIN_ROUTES.KDS, label: "Kitchen Display" },
+  { path: ADMIN_ROUTES.ORDER_TAKER, label: "Order Taker" },
+  { path: ADMIN_ROUTES.ORDER_SUMMARY, label: "Order Summary" },
+];
+
 export const SUPER_ADMIN_ROUTES = {
   KDS: "/super-admin/kds",
   DASHBOARD: "/super-admin/dashboard",

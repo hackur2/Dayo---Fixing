@@ -4,10 +4,10 @@ import { Link } from "react-router";
 import { STORAGE_KEYS } from "../../../constants/storageKeys";
 import { SUPER_ADMIN_ROUTES } from "../../../constants/routes";
 import { getDailyIncomeProgress } from "../../../utils/dashboardUtils";
-import { getOrderSourceLabel } from "../../../utils/orderUtils";
+import { getOrderSourceLabel, MANUAL_ORDER_SOURCE } from "../../../utils/orderUtils";
 
 const DEFAULT_DAILY_INCOME_TARGET = 2000;
-const SOURCE_COLORS = { "QR Order": "#a52a2a", "Manual POS": "#d2a542", "Sumo AI": "#8f9779" };
+const SOURCE_COLORS = { "QR Order": "#a52a2a", [MANUAL_ORDER_SOURCE]: "#d2a542", "Sumo AI": "#8f9779" };
 const PIPELINE_COLORS = { Pending: "#d2a542", Preparing: "#a52a2a", Ready: "#8f9779" };
 
 function formatPeso(amount) {

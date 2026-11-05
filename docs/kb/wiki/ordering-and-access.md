@@ -12,6 +12,10 @@ Updated 2026-11-06. Verified against the current checkout. Human review is pendi
 
 KDS reads Pending, Preparing, and Ready orders from Supabase and updates order status through a protected write. The active screen refreshes via polling and realtime events. It also checks for stale Pending orders to cancel while the screen runs. Order status in the customer view refreshes from its RPC. [Order service](../../../src/services/orderService.js) · [KDS hook](../../../src/hooks/useKdsOrders.js) · [Customer status hook](../../../src/hooks/useCurrentOrderData.js)
 
+The staff order UI uses the label `Order Taker` for manual orders. A prepared migration changes the persisted value from `Manual POS` to `Manual Order Taker`, and the dashboard and filters accept both during rollout. Applying the migration to both databases is still pending. [Naming assessment](../outputs/2026-11-06-order-taker-naming.md) · [Prepared change and rollout](../outputs/2026-11-06-manual-order-taker-source-change.md)
+
+The Super Admin dashboard already has a role guard. A hosted deployment limited to that dashboard and the customer flow would additionally need a cloud route allowlist and database permissions that enforce the same scope. The menu RPC remains public in the current schema. [Cloud access assessment](../outputs/2026-11-06-cloud-route-access-scope.md)
+
 ## Menu images and assistant
 
 - The picker uploads JPG, PNG, or WebP files up to 5 MiB to the public `menu-images` bucket. Inventory saves the resulting public URL in `menu_items.image_url`. Storage policies require authorized staff for writes. [Image picker](../../../src/components/superAdmin/inventory/MenuImagePicker.jsx) · [Inventory service](../../../src/services/inventoryService.js) · [Storage migration](../../../supabase/migrations/20261020143116_menu_image_storage.sql)

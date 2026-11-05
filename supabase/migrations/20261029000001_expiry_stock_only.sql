@@ -90,6 +90,9 @@ create or replace function public.deduct_order_ingredients_on_completion()
 returns trigger language plpgsql security definer set search_path = '' as $$
 declare v_claimed_order_id text; v_requirement record; v_updated_count integer;
 begin
+  if auth.role() = 'service_role' and current_setting('app.sync_source', true) = 'cloud_mirror' then
+    return new;
+  end if;
   if new.status <> 'Completed' then return new; end if;
   if tg_op = 'UPDATE' and old.status = 'Completed' then return new; end if;
   insert into public.order_inventory_deductions(order_id) values(new.id::text)

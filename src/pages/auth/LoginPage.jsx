@@ -31,7 +31,7 @@ function LoginPage() {
       return;
     }
 
-    navigate(getRoleHomeRoute(currentUser.role), { replace: true });
+    navigate(getRoleHomeRoute(currentUser), { replace: true });
   }, [currentUser, isAuthLoading, navigate]);
 
   function handleInputChange(event) {
@@ -77,14 +77,18 @@ function LoginPage() {
 
       const requestedPath = location.state?.from;
       const redirectPath = getSafeRedirectPath(
-        authenticatedUser.role,
+        authenticatedUser,
         requestedPath
       );
 
       navigate(redirectPath, { replace: true });
     } catch (error) {
       console.error("Unable to log in:", error);
-      setLoginError("Unable to log in right now. Please try again.");
+      setLoginError(
+        error.message === "This account is not authorized."
+          ? "This account is blocked from the staff portal."
+          : "Unable to log in right now. Please try again."
+      );
     } finally {
       setIsSubmitting(false);
     }
