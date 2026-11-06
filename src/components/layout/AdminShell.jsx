@@ -16,13 +16,16 @@ function AdminShell({ roleName, navLinks, pageTitle, children }) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [headerActionsTarget, setHeaderActionsTarget] = useState(null);
   const currentUser = getStoredAuthUser();
+  const displayRoleName = currentUser?.role === "ADMIN"
+    ? currentUser.position || "Staff"
+    : roleName === "Super Admin" ? "Admin" : roleName;
   const visibleNavLinks = currentUser?.role === "ADMIN"
     ? navLinks.filter((link) => currentUser.allowedRoutes?.includes(link.path))
     : navLinks;
 
   const currentPageName =
     pageTitle ||
-    getCurrentNavigationLabel(visibleNavLinks, location) || roleName;
+    getCurrentNavigationLabel(visibleNavLinks, location) || displayRoleName;
 
   async function handleLogout() {
     try {
@@ -36,12 +39,12 @@ function AdminShell({ roleName, navLinks, pageTitle, children }) {
   return (
     <AdminShellContext.Provider value={{ isSidebarOpen, headerActionsTarget }}>
       <div className={isSidebarOpen ? "admin-shell" : "admin-shell sidebar-closed"}>
-        {roleName === "Super Admin" && <RestockNotifications />}
+        {currentUser?.role === "SUPER_ADMIN" && <RestockNotifications />}
         <aside className="admin-sidebar">
           <div className="admin-sidebar-header">
             <div>
               <h1>DaYo</h1>
-              <p>{roleName}</p>
+              <p>{displayRoleName}</p>
             </div>
 
             <button

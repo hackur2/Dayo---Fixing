@@ -7,7 +7,9 @@ export const USER_ROLES = {
 };
 
 export const ROLE_LABELS = {
-  [USER_ROLES.SUPER_ADMIN]: "Super Admin",
+  // The database role remains SUPER_ADMIN for compatibility with existing RLS
+  // policies; the application presents this privileged role as Admin.
+  [USER_ROLES.SUPER_ADMIN]: "Admin",
   [USER_ROLES.ADMIN]: "Admin",
   [USER_ROLES.CUSTOMER]: "Customer",
 };

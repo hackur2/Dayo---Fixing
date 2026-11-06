@@ -37,7 +37,7 @@ function SuperAdminQrAccessPage() {
     <section className="admin-page super-admin-qr-page">
       <div className="admin-page-heading">
         <div>
-          <p className="admin-eyebrow">Super Admin</p>
+          <p className="admin-eyebrow">Admin</p>
           <h1>Customer QR</h1>
           <p>Print this fixed QR code for customers to scan.</p>
         </div>
